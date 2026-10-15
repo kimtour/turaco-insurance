@@ -1,0 +1,53 @@
+{
+  "verified_at": "2026-10-15T22:19:44+03:00",
+  "verifier": "Codex; independent artifact inspection",
+  "result": "passed",
+  "version": "0.2.0",
+  "tested_commit": "57e361ea0ea9d27e7c0730eb2f6c20cdc17b1a20",
+  "repository": "https://github.com/kimtour/turaco-insurance",
+  "visibility": "PUBLIC",
+  "ci_run": "https://github.com/kimtour/turaco-insurance/actions/runs/38791009127",
+  "ci_jobs": {
+    "compose-demo": "success",
+    "dashboard": "success",
+    "java": "success",
+    "python": "success",
+    "release-candidate": "success"
+  },
+  "artifact": {
+    "id": 11999099722,
+    "name": "synthetic-release-candidate-0.2.0",
+    "size_bytes": 35934902,
+    "expired_at_verification": false
+  },
+  "checks": {
+    "sha256_inventory": "passed; all five listed files and no extra files",
+    "manifest": {
+      "version": "0.2.0",
+      "commit": "57e361ea0ea9d27e7c0730eb2f6c20cdc17b1a20",
+      "classification": "synthetic-local-reference",
+      "live_payments": false
+    },
+    "source_inventory_and_bytes": "match every tracked file in the tested commit",
+    "source_files": 103,
+    "dashboard_files": 3,
+    "java_version": "0.2.0",
+    "sbom_components": 100,
+    "archive_path_exclusions": "passed; source and UI archives inspected internally",
+    "known_generated_local_secret_matches": 0
+  },
+  "scope_limits": [
+    "Secret-value matching covers the current local generated values and does not prove absence of all possible credentials.",
+    "Known synthetic fixture credentials and placeholder .env.example are expected; source bytes match the tested commit.",
+    "CI scanning covers Java dependencies/runtime image plus Python and npm audits, not every third-party container image.",
+    "This verifies a synthetic release candidate, not production readiness."
+  ],
+  "sha256": {
+    "claims-dashboard-0.2.0.tar.gz": "e9f19066fbd2ca40c298c2315e01a7e18fb40f4c899349a10c362375f6ea55cf",
+    "insurance-api-0.2.0.jar": "9d23d25021e55140ed01f99b27b09bb8f155cb864cf88d86dbba371b20619084",
+    "java-sbom.cdx.json": "c894c138f877bc45391c62e113e0b31be0e556621b5599800675a4c50c38e850",
+    "manifest.json": "813e29675b5c0dd416bb91b243b7eba501613b428ab6edcdeea4b8703266e1d9",
+    "turaco-insurance-0.2.0-source.tar.gz": "c7e9d2aa7bb590f89ba36475561bea16b1f867ff857918c3b6871e2c68f1eaa2"
+  },
+  "checksum_manifest_sha256": "9a1020367e0a38fe16247231835f6a37c5ba1a42e129976b4e9c0ffe5e68ce54"
+}
