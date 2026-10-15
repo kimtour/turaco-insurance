@@ -78,6 +78,12 @@ npm audit --audit-level=high
 API_URL=http://127.0.0.1:18080 python3 scripts/load-check.py
 python3 scripts/backup-restore-check.py
 API_URL=http://127.0.0.1:18080 python3 scripts/export-contracts.py
+
+# From the repository root, after the Java/SBOM and dashboard builds:
+python3 -m unittest discover -s tests -p 'test_release_tools.py'
+# Packaging requires a clean committed worktree:
+python3 scripts/package-release.py
+python3 scripts/verify-release.py --directory release/0.2.0
 ```
 
 The backup rehearsal only accepts named local synthetic databases, restores into a newly created disposable database, validates it, then removes that restored copy. CI exercises Testcontainers, Compose, application-image scanning and an isolated kind deployment before packaging a release candidate. It does not publish or deploy to AWS automatically.

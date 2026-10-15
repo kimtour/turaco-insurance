@@ -1,14 +1,76 @@
 import hashlib
+import io
+import json
 import subprocess
 import tarfile
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 from scripts.release_tools import PAYLOADS, archive_files, check_path, package_release, verify_release
 
 
 class ReleaseToolsTests(unittest.TestCase):
+    def project(self, root):
+        (root / '.gitignore').write_text('release/\n.cache/\ntarget/\ndist/\n')
+        source = root / 'services/insurance-api/src/main/java/com/sam/insurance/ClaimsService.java'
+        source.parent.mkdir(parents=True)
+        source.write_text('class ClaimsService {}\n')
+        subprocess.run(['git', 'init', '-q'], cwd=root, check=True)
+        subprocess.run(['git', 'add', '.'], cwd=root, check=True)
+        subprocess.run(['git', '-c', 'user.name=Release Test', '-c', 'user.email=release-test@example.invalid',
+                        'commit', '-qm', 'fixture'], cwd=root, check=True)
+        target = root / 'services/insurance-api/target'
+        target.mkdir()
+        with zipfile.ZipFile(target / 'insurance-api-0.2.0.jar', 'w') as jar:
+            for name, body in {
+                'META-INF/maven/com.sam/insurance-api/pom.properties': 'version=0.2.0\n',
+                'BOOT-INF/classes/com/sam/insurance/ClaimsService.class': 'synthetic bytecode fixture',
+            }.items():
+                entry = zipfile.ZipInfo(name)
+                entry.external_attr = 0o100644 << 16
+                jar.writestr(entry, body)
+        (target / 'bom.json').write_text(json.dumps({'bomFormat': 'CycloneDX', 'components': [{'name': 'fixture'}]}))
+        dist = root / 'apps/claims-dashboard/dist'
+        (dist / 'assets').mkdir(parents=True)
+        (dist / 'index.html').write_text('<div>synthetic fixture</div>')
+        (dist / 'assets/app.js').write_text('console.log("fixture")')
+
+    def test_valid_candidate_is_verified_and_stale_files_are_preserved_outside_new_package(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.project(root)
+            candidate = package_release(root)
+            report = verify_release(root, candidate)
+            self.assertTrue(report['source_matches_commit'])
+            self.assertEqual(report['source_files'], 2)
+            (candidate / 'stale-verification.json').write_text('old evidence')
+            new = package_release(root)
+            self.assertEqual({p.name for p in new.iterdir()}, PAYLOADS | {'SHA256SUMS'})
+            self.assertEqual(len(list((root / '.cache/verification/release-packages').glob('*/stale-verification.json'))), 1)
+            self.assertEqual(verify_release(root, new)['result'], 'passed')
+
+    def test_source_tampering_is_rejected_even_when_checksums_are_recomputed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.project(root)
+            candidate = package_release(root)
+            path = candidate / 'turaco-insurance-0.2.0-source.tar.gz'
+            files = archive_files(path)
+            name = next(name for name in files if name.endswith('ClaimsService.java'))
+            files[name] = b'changed after source commit\n'
+            with tarfile.open(path, 'w:gz') as archive:
+                for name, data in files.items():
+                    member = tarfile.TarInfo(name)
+                    member.size = len(data)
+                    archive.addfile(member, io.BytesIO(data))
+            (candidate / 'SHA256SUMS').write_text(''.join(
+                hashlib.sha256((candidate / name).read_bytes()).hexdigest() + '  ' + name + '\n'
+                for name in sorted(PAYLOADS)))
+            with self.assertRaisesRegex(ValueError, 'Source contents'):
+                verify_release(root, candidate)
+
     def make_candidate(self, directory):
         directory.mkdir()
         for name in PAYLOADS:

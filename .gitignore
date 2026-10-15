@@ -11,3 +11,6 @@ dist/
 .DS_Store
 test-results/
 release/
+# Keep local editor preferences and the machine-specific handoff out of public source.
+.vscode/
+/AI_HANDOFF.md
