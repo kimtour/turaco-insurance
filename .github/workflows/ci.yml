@@ -16,7 +16,7 @@ jobs:
         working-directory: services/insurance-api
         run: ./mvnw -B org.cyclonedx:cyclonedx-maven-plugin:2.9.1:makeAggregateBom
       - name: Java dependency vulnerability scan
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
         with:
           scan-type: sbom
           scan-ref: services/insurance-api/target/bom.json
@@ -60,7 +60,7 @@ jobs:
       - run: python3 scripts/load-check.py
       - run: python3 scripts/export-contracts.py
       - name: Scan application images
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
         with:
           image-ref: turaco-insurance-insurance-api:latest
           severity: HIGH,CRITICAL
