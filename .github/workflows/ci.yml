@@ -104,9 +104,11 @@ jobs:
         if: failure()
         run: |
           kubectl -n turaco-synthetic get pods -o wide || true
+          kubectl -n turaco-synthetic get pods -o 'custom-columns=NAME:.metadata.name,LAST_REASON:.status.containerStatuses[*].lastState.terminated.reason,LAST_EXIT:.status.containerStatuses[*].lastState.terminated.exitCode' || true
           kubectl -n turaco-synthetic get events --sort-by=.lastTimestamp || true
           for component in keycloak postgres insurance-api ai-service provider-simulator claims-dashboard; do
             kubectl -n turaco-synthetic logs deployment/$component --all-containers --prefix --tail=100 || true
+            kubectl -n turaco-synthetic logs deployment/$component --all-containers --prefix --previous --tail=100 || true
           done
           for logfile in /tmp/turaco-*-forward.log; do
             test ! -f "$logfile" || cat "$logfile"

@@ -277,6 +277,10 @@
                   {
                     "name": "KC_HOSTNAME",
                     "value": "http://localhost:8081"
+                  },
+                  {
+                    "name": "JAVA_OPTS_KC_HEAP",
+                    "value": "-Xms64m -Xmx384m"
                   }
                 ],
                 "resources": {
@@ -286,7 +290,7 @@
                   },
                   "limits": {
                     "cpu": "2",
-                    "memory": "768Mi"
+                    "memory": "1024Mi"
                   }
                 },
                 "securityContext": {
