@@ -89,3 +89,7 @@ The Mac Docker engine remains unusable; successful container/Testcontainers/kind
 ## Documentation-only commits (not re-tested)
 
 - `1b4cea7a039c4c5ac04b04016b06db3889ed122b` — status and independently verified artifact evidence; documentation only, not re-tested. Subsequent documentation commit identities are recorded in Git history. Runtime evidence remains tied to `57e361e`.
+
+## Current-head revalidation
+
+A full five-job GitHub Actions run is being triggered against this branch after the documentation closeout. Its results will be recorded here once complete.
