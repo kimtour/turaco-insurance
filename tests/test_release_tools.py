@@ -71,6 +71,22 @@ class ReleaseToolsTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Source contents'):
                 verify_release(root, candidate)
 
+    def test_git_line_ending_filters_do_not_change_canonical_source_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.project(root)
+            name = 'services/insurance-api/mvnw.cmd'
+            (root / '.gitattributes').write_text(name + ' text eol=crlf\n')
+            (root / name).write_bytes(b'@echo off\nrem synthetic wrapper fixture\n')
+            subprocess.run(['git', 'add', '.gitattributes', name], cwd=root, check=True)
+            subprocess.run(['git', '-c', 'user.name=Release Test', '-c', 'user.email=release-test@example.invalid',
+                            'commit', '-qm', 'line ending fixture'], cwd=root, check=True)
+            candidate = package_release(root)
+            contents = archive_files(candidate / 'turaco-insurance-0.2.0-source.tar.gz')
+            canonical = subprocess.check_output(['git', 'show', 'HEAD:' + name], cwd=root)
+            self.assertEqual(contents['turaco-insurance/' + name], canonical)
+            self.assertEqual(verify_release(root, candidate)['result'], 'passed')
+
     def make_candidate(self, directory):
         directory.mkdir()
         for name in PAYLOADS:

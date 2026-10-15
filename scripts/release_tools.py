@@ -35,17 +35,27 @@ def check_path(name):
         raise ValueError('Private/runtime file in archive')
 
 
-def archive_files(path):
+def archive_members(archive):
     files = {}
-    with tarfile.open(path, 'r:gz') as archive:
-        for member in archive:
-            check_path(member.name)
-            if member.isdir():
-                continue
-            if not member.isfile() or member.name in files:
-                raise ValueError('Archive contains a link, special file or duplicate')
-            files[member.name] = archive.extractfile(member).read()
+    for member in archive:
+        check_path(member.name)
+        if member.isdir():
+            continue
+        if not member.isfile() or member.name in files:
+            raise ValueError('Archive contains a link, special file or duplicate')
+        files[member.name] = archive.extractfile(member).read()
     return files
+
+
+def archive_files(path):
+    with tarfile.open(path, 'r:gz') as archive:
+        return archive_members(archive)
+
+
+def git_archive_files(root, commit):
+    data = git(root, 'archive', '--format=tar', '--prefix=turaco-insurance/', commit)
+    with tarfile.open(fileobj=io.BytesIO(data), mode='r:') as archive:
+        return archive_members(archive)
 
 
 def verify_release(root, directory):
@@ -79,11 +89,12 @@ def verify_release(root, directory):
         raise ValueError('Invalid release identity/classification')
     source = archive_files(directory / f'turaco-insurance-{VERSION}-source.tar.gz')
     tracked = git(root, 'ls-tree', '-r', '--name-only', '-z', commit).decode().strip('\0').split('\0')
-    if set(source) != {'turaco-insurance/' + name for name in tracked}:
+    expected_source = git_archive_files(root, commit)
+    if set(source) != {'turaco-insurance/' + name for name in tracked} or set(source) != set(expected_source):
         raise ValueError('Source inventory differs from the named commit')
-    for name in tracked:
-        if source['turaco-insurance/' + name] != git(root, 'show', commit + ':' + name):
-            raise ValueError('Source contents differ from the named commit')
+    for name, content in expected_source.items():
+        if source[name] != content:
+            raise ValueError(f'Source contents differ from the named commit: {name}')
     ui = archive_files(directory / f'claims-dashboard-{VERSION}.tar.gz')
     if 'claims-dashboard/index.html' not in ui or not any('/assets/' in name for name in ui):
         raise ValueError('Dashboard production build is missing')
@@ -165,7 +176,12 @@ def package_release(root=ROOT):
                     check_path(member.name)
                     if not member.isfile():
                         raise ValueError('Tracked links/special files cannot be packaged')
-                    packed.addfile(member, source.extractfile(member))
+                    # Git archive applies working-tree filters such as eol=crlf. Keep
+                    # source byte-identical to canonical commit blobs instead.
+                    name = member.name.removeprefix('turaco-insurance/')
+                    data = git(root, 'show', commit + ':' + name)
+                    member.size = len(data)
+                    packed.addfile(member, io.BytesIO(data))
         shutil.copyfile(jar, stage / f'insurance-api-{VERSION}.jar')
         shutil.copyfile(sbom, stage / 'java-sbom.cdx.json')
         with tarfile.open(stage / f'claims-dashboard-{VERSION}.tar.gz', 'w:gz') as archive:
