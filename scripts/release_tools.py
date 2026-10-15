@@ -129,8 +129,9 @@ def verify_release(root, directory):
 
 def package_release(root=ROOT):
     root = Path(root)
-    if git(root, 'status', '--porcelain', '--untracked-files=all').strip():
-        raise ValueError('Commit or remove working-tree changes before packaging; source must match HEAD')
+    changes = git(root, 'status', '--porcelain', '--untracked-files=all').decode().strip()
+    if changes:
+        raise ValueError(f'Commit or remove working-tree changes before packaging; source must match HEAD:\n{changes}')
     commit = git(root, 'rev-parse', 'HEAD').decode().strip()
     tracked = git(root, 'ls-tree', '-r', '--name-only', '-z', commit).decode().strip('\0').split('\0')
     if not any(name.endswith('/ClaimsService.java') for name in tracked):
