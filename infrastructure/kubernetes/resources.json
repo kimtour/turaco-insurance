@@ -1,0 +1,1075 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "Namespace",
+      "metadata": {
+        "name": "turaco-synthetic",
+        "labels": {
+          "data-classification": "synthetic-only",
+          "pod-security.kubernetes.io/enforce": "restricted"
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "turaco-local-realm",
+        "namespace": "turaco-synthetic"
+      },
+      "data": {
+        "turaco-local-realm.json": "{\n  \"realm\": \"turaco-local\",\n  \"enabled\": true,\n  \"displayName\": \"LOCAL SYNTHETIC ONLY\",\n  \"sslRequired\": \"none\",\n  \"registrationAllowed\": false,\n  \"roles\": {\n    \"realm\": [\n      {\n        \"name\": \"claims:read\"\n      },\n      {\n        \"name\": \"claims:write\"\n      },\n      {\n        \"name\": \"claims:review\"\n      },\n      {\n        \"name\": \"claims:approve\"\n      },\n      {\n        \"name\": \"claims:pay\"\n      }\n    ]\n  },\n  \"clients\": [\n    {\n      \"clientId\": \"claims-local\",\n      \"publicClient\": true,\n      \"directAccessGrantsEnabled\": true,\n      \"standardFlowEnabled\": false,\n      \"webOrigins\": [\n        \"http://localhost:5173\"\n      ],\n      \"protocolMappers\": [\n        {\n          \"name\": \"tenant_id\",\n          \"protocol\": \"openid-connect\",\n          \"protocolMapper\": \"oidc-usermodel-attribute-mapper\",\n          \"config\": {\n            \"user.attribute\": \"tenant_id\",\n            \"claim.name\": \"tenant_id\",\n            \"jsonType.label\": \"String\",\n            \"access.token.claim\": \"true\",\n            \"id.token.claim\": \"true\"\n          }\n        },\n        {\n          \"name\": \"country_code\",\n          \"protocol\": \"openid-connect\",\n          \"protocolMapper\": \"oidc-usermodel-attribute-mapper\",\n          \"config\": {\n            \"user.attribute\": \"country_code\",\n            \"claim.name\": \"country_code\",\n            \"jsonType.label\": \"String\",\n            \"access.token.claim\": \"true\",\n            \"id.token.claim\": \"true\"\n          }\n        },\n        {\n          \"name\": \"audience\",\n          \"protocol\": \"openid-connect\",\n          \"protocolMapper\": \"oidc-audience-mapper\",\n          \"config\": {\n            \"included.custom.audience\": \"insurance-api\",\n            \"access.token.claim\": \"true\"\n          }\n        }\n      ],\n      \"defaultClientScopes\": [\n        \"basic\",\n        \"roles\",\n        \"profile\"\n      ]\n    }\n  ],\n  \"users\": [\n    {\n      \"username\": \"officer\",\n      \"enabled\": true,\n      \"firstName\": \"Synthetic\",\n      \"lastName\": \"officer\",\n      \"email\": \"officer@example.invalid\",\n      \"emailVerified\": true,\n      \"attributes\": {\n        \"tenant_id\": [\n          \"11111111-1111-1111-1111-111111111111\"\n        ],\n        \"country_code\": [\n          \"KE\"\n        ]\n      },\n      \"credentials\": [\n        {\n          \"type\": \"password\",\n          \"value\": \"local-demo-only\",\n          \"temporary\": false\n        }\n      ],\n      \"realmRoles\": [\n        \"claims:read\",\n        \"claims:write\"\n      ]\n    },\n    {\n      \"username\": \"reviewer\",\n      \"enabled\": true,\n      \"firstName\": \"Synthetic\",\n      \"lastName\": \"reviewer\",\n      \"email\": \"reviewer@example.invalid\",\n      \"emailVerified\": true,\n      \"attributes\": {\n        \"tenant_id\": [\n          \"11111111-1111-1111-1111-111111111111\"\n        ],\n        \"country_code\": [\n          \"KE\"\n        ]\n      },\n      \"credentials\": [\n        {\n          \"type\": \"password\",\n          \"value\": \"local-demo-only\",\n          \"temporary\": false\n        }\n      ],\n      \"realmRoles\": [\n        \"claims:read\",\n        \"claims:review\"\n      ]\n    },\n    {\n      \"username\": \"approver\",\n      \"enabled\": true,\n      \"firstName\": \"Synthetic\",\n      \"lastName\": \"approver\",\n      \"email\": \"approver@example.invalid\",\n      \"emailVerified\": true,\n      \"attributes\": {\n        \"tenant_id\": [\n          \"11111111-1111-1111-1111-111111111111\"\n        ],\n        \"country_code\": [\n          \"KE\"\n        ]\n      },\n      \"credentials\": [\n        {\n          \"type\": \"password\",\n          \"value\": \"local-demo-only\",\n          \"temporary\": false\n        }\n      ],\n      \"realmRoles\": [\n        \"claims:read\",\n        \"claims:write\",\n        \"claims:review\",\n        \"claims:approve\",\n        \"claims:pay\"\n      ]\n    }\n  ]\n}\n"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "postgres",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "selector": {
+          "app": "postgres"
+        },
+        "ports": [
+          {
+            "port": 5432,
+            "targetPort": 5432
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "metadata": {
+        "name": "postgres-data",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "1Gi"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "postgres",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "replicas": 1,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app": "postgres"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "postgres"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "securityContext": {
+              "fsGroup": 70,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "postgres",
+                "image": "postgres:17.11-alpine",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 5432
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "POSTGRES_DB",
+                    "value": "turaco"
+                  },
+                  {
+                    "name": "POSTGRES_USER",
+                    "value": "turaco_local"
+                  },
+                  {
+                    "name": "POSTGRES_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "turaco-local",
+                        "key": "DB_PASSWORD"
+                      }
+                    }
+                  },
+                  {
+                    "name": "PGDATA",
+                    "value": "/var/lib/postgresql/data/pgdata"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "64Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "512Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "runAsUser": 70,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp"
+                  },
+                  {
+                    "name": "data",
+                    "mountPath": "/var/lib/postgresql/data"
+                  },
+                  {
+                    "name": "socket",
+                    "mountPath": "/var/run/postgresql"
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {}
+              },
+              {
+                "name": "data",
+                "persistentVolumeClaim": {
+                  "claimName": "postgres-data"
+                }
+              },
+              {
+                "name": "socket",
+                "emptyDir": {}
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "keycloak",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "selector": {
+          "app": "keycloak"
+        },
+        "ports": [
+          {
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "metadata": {
+        "name": "keycloak-data",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "1Gi"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "keycloak",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "replicas": 1,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app": "keycloak"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "keycloak"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "securityContext": {
+              "fsGroup": 1000,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "keycloak",
+                "image": "quay.io/keycloak/keycloak:26.4.0",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "KC_BOOTSTRAP_ADMIN_USERNAME",
+                    "value": "local-admin"
+                  },
+                  {
+                    "name": "KC_BOOTSTRAP_ADMIN_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "turaco-local",
+                        "key": "KEYCLOAK_ADMIN_PASSWORD"
+                      }
+                    }
+                  },
+                  {
+                    "name": "KC_HOSTNAME",
+                    "value": "http://localhost:8081"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "64Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "768Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": false,
+                  "runAsNonRoot": true,
+                  "runAsUser": 1000,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp"
+                  },
+                  {
+                    "name": "data",
+                    "mountPath": "/opt/keycloak/data"
+                  },
+                  {
+                    "name": "realm",
+                    "mountPath": "/opt/keycloak/data/import",
+                    "readOnly": true
+                  }
+                ],
+                "command": [
+                  "/opt/keycloak/bin/kc.sh",
+                  "start-dev",
+                  "--import-realm"
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {}
+              },
+              {
+                "name": "data",
+                "persistentVolumeClaim": {
+                  "claimName": "keycloak-data"
+                }
+              },
+              {
+                "name": "realm",
+                "configMap": {
+                  "name": "turaco-local-realm"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "ai-service",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "selector": {
+          "app": "ai-service"
+        },
+        "ports": [
+          {
+            "port": 8000,
+            "targetPort": 8000
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "metadata": {
+        "name": "ai-service-data",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "1Gi"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "ai-service",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "replicas": 1,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app": "ai-service"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "ai-service"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "securityContext": {
+              "fsGroup": 10001,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "ai-service",
+                "image": "turaco-insurance-ai-service:latest",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8000
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "AI_PROVIDER",
+                    "value": "mock"
+                  },
+                  {
+                    "name": "AI_SERVICE_TOKEN",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "turaco-local",
+                        "key": "AI_SERVICE_TOKEN"
+                      }
+                    }
+                  },
+                  {
+                    "name": "CONVERSATION_DB",
+                    "value": "/data/conversations.sqlite"
+                  },
+                  {
+                    "name": "LANGFUSE_ENABLED",
+                    "value": "false"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "64Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "512Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "runAsUser": 10001,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp"
+                  },
+                  {
+                    "name": "data",
+                    "mountPath": "/data"
+                  }
+                ],
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8000
+                  },
+                  "initialDelaySeconds": 5,
+                  "periodSeconds": 5
+                },
+                "livenessProbe": {
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8000
+                  },
+                  "initialDelaySeconds": 30,
+                  "periodSeconds": 15
+                },
+                "startupProbe": {
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8000
+                  },
+                  "periodSeconds": 5,
+                  "failureThreshold": 60
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {}
+              },
+              {
+                "name": "data",
+                "persistentVolumeClaim": {
+                  "claimName": "ai-service-data"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "provider-simulator",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "selector": {
+          "app": "provider-simulator"
+        },
+        "ports": [
+          {
+            "port": 9000,
+            "targetPort": 9000
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "metadata": {
+        "name": "provider-simulator-data",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "accessModes": [
+          "ReadWriteOnce"
+        ],
+        "resources": {
+          "requests": {
+            "storage": "1Gi"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "provider-simulator",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "replicas": 1,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app": "provider-simulator"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "provider-simulator"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "securityContext": {
+              "fsGroup": 10001,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "provider-simulator",
+                "image": "turaco-insurance-provider-simulator:latest",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 9000
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "SIMULATOR_TOKEN",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "turaco-local",
+                        "key": "SIMULATOR_TOKEN"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SIMULATOR_DB",
+                    "value": "/data/provider.sqlite"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "64Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "512Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "runAsUser": 10001,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp"
+                  },
+                  {
+                    "name": "data",
+                    "mountPath": "/data"
+                  }
+                ],
+                "command": [
+                  ".venv/bin/uvicorn",
+                  "app.simulator:app",
+                  "--host",
+                  "0.0.0.0",
+                  "--port",
+                  "9000"
+                ],
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 9000
+                  },
+                  "initialDelaySeconds": 5,
+                  "periodSeconds": 5
+                },
+                "livenessProbe": {
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 9000
+                  },
+                  "initialDelaySeconds": 30,
+                  "periodSeconds": 15
+                },
+                "startupProbe": {
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 9000
+                  },
+                  "periodSeconds": 5,
+                  "failureThreshold": 60
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {}
+              },
+              {
+                "name": "data",
+                "persistentVolumeClaim": {
+                  "claimName": "provider-simulator-data"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "insurance-api",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "selector": {
+          "app": "insurance-api"
+        },
+        "ports": [
+          {
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "insurance-api",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "replicas": 1,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app": "insurance-api"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "insurance-api"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "securityContext": {
+              "fsGroup": 10001,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "insurance-api",
+                "image": "turaco-insurance-insurance-api:latest",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "SPRING_PROFILES_ACTIVE",
+                    "value": "local"
+                  },
+                  {
+                    "name": "LOCAL_SEED",
+                    "value": "true"
+                  },
+                  {
+                    "name": "APP_MODE",
+                    "value": "standalone"
+                  },
+                  {
+                    "name": "DB_URL",
+                    "value": "jdbc:postgresql://postgres:5432/turaco"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "turaco_local"
+                  },
+                  {
+                    "name": "OIDC_ISSUER",
+                    "value": "http://localhost:8081/realms/turaco-local"
+                  },
+                  {
+                    "name": "OIDC_JWK_URI",
+                    "value": "http://keycloak:8080/realms/turaco-local/protocol/openid-connect/certs"
+                  },
+                  {
+                    "name": "DASHBOARD_ORIGIN",
+                    "value": "http://localhost:5173"
+                  },
+                  {
+                    "name": "AI_SERVICE_URL",
+                    "value": "http://ai-service:8000"
+                  },
+                  {
+                    "name": "SIMULATOR_URL",
+                    "value": "http://provider-simulator:9000"
+                  },
+                  {
+                    "name": "QUEUE_WORKER_ENABLED",
+                    "value": "true"
+                  },
+                  {
+                    "name": "DB_PASSWORD",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "turaco-local",
+                        "key": "DB_PASSWORD"
+                      }
+                    }
+                  },
+                  {
+                    "name": "PAYLOAD_ENCRYPTION_KEY",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "turaco-local",
+                        "key": "PAYLOAD_ENCRYPTION_KEY"
+                      }
+                    }
+                  },
+                  {
+                    "name": "AI_SERVICE_TOKEN",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "turaco-local",
+                        "key": "AI_SERVICE_TOKEN"
+                      }
+                    }
+                  },
+                  {
+                    "name": "SIMULATOR_TOKEN",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "turaco-local",
+                        "key": "SIMULATOR_TOKEN"
+                      }
+                    }
+                  },
+                  {
+                    "name": "PROVIDER_CALLBACK_TOKEN",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "turaco-local",
+                        "key": "PROVIDER_CALLBACK_TOKEN"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WHATSAPP_APP_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "turaco-local",
+                        "key": "WHATSAPP_APP_SECRET"
+                      }
+                    }
+                  },
+                  {
+                    "name": "WHATSAPP_VERIFY_TOKEN",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "name": "turaco-local",
+                        "key": "WHATSAPP_VERIFY_TOKEN"
+                      }
+                    }
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "64Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "768Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "runAsUser": 10001,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp"
+                  }
+                ],
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/actuator/health/readiness",
+                    "port": 8080
+                  },
+                  "initialDelaySeconds": 5,
+                  "periodSeconds": 5
+                },
+                "livenessProbe": {
+                  "httpGet": {
+                    "path": "/actuator/health/readiness",
+                    "port": 8080
+                  },
+                  "initialDelaySeconds": 30,
+                  "periodSeconds": 15
+                },
+                "startupProbe": {
+                  "httpGet": {
+                    "path": "/actuator/health/readiness",
+                    "port": 8080
+                  },
+                  "periodSeconds": 5,
+                  "failureThreshold": 60
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {}
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "claims-dashboard",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "selector": {
+          "app": "claims-dashboard"
+        },
+        "ports": [
+          {
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "claims-dashboard",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "replicas": 1,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app": "claims-dashboard"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "claims-dashboard"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "securityContext": {
+              "fsGroup": 101,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "containers": [
+              {
+                "name": "claims-dashboard",
+                "image": "turaco-insurance-claims-dashboard:latest",
+                "imagePullPolicy": "IfNotPresent",
+                "ports": [
+                  {
+                    "containerPort": 8080
+                  }
+                ],
+                "env": [],
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "64Mi"
+                  },
+                  "limits": {
+                    "cpu": "2",
+                    "memory": "128Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsNonRoot": true,
+                  "runAsUser": 101,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "tmp",
+                    "mountPath": "/tmp"
+                  }
+                ],
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/",
+                    "port": 8080
+                  },
+                  "initialDelaySeconds": 5,
+                  "periodSeconds": 5
+                },
+                "livenessProbe": {
+                  "httpGet": {
+                    "path": "/",
+                    "port": 8080
+                  },
+                  "initialDelaySeconds": 30,
+                  "periodSeconds": 15
+                },
+                "startupProbe": {
+                  "httpGet": {
+                    "path": "/",
+                    "port": 8080
+                  },
+                  "periodSeconds": 5,
+                  "failureThreshold": 60
+                }
+              }
+            ],
+            "volumes": [
+              {
+                "name": "tmp",
+                "emptyDir": {}
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "metadata": {
+        "name": "namespace-isolation",
+        "namespace": "turaco-synthetic"
+      },
+      "spec": {
+        "podSelector": {},
+        "policyTypes": [
+          "Ingress"
+        ],
+        "ingress": [
+          {
+            "from": [
+              {
+                "podSelector": {}
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

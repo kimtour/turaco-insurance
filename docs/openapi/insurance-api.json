@@ -1,0 +1,1955 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:18080",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/webhooks/whatsapp": {
+      "get": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "verify",
+        "parameters": [
+          {
+            "name": "hub.mode",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hub.verify_token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hub.challenge",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "webhook",
+        "parameters": [
+          {
+            "name": "X-Hub-Signature-256",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhooks/turaco-simulator": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "callback",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProviderEvent"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/policies": {
+      "get": {
+        "tags": [
+          "catalog-controller"
+        ],
+        "operationId": "policies",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "maximum": 10000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "catalog-controller"
+        ],
+        "operationId": "createPolicy",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PolicyInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/policies/{id}/cancellations": {
+      "post": {
+        "tags": [
+          "catalog-controller"
+        ],
+        "operationId": "cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/operations/drain": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "drain",
+        "parameters": [
+          {
+            "name": "simulateFailure",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/operations/dead-letters/{id}/replays": {
+      "post": {
+        "tags": [
+          "operations-controller"
+        ],
+        "operationId": "replay",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Approval"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/previews": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "notify",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Notification"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/intakes/from-text": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "text",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextIntake"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/customers": {
+      "post": {
+        "tags": [
+          "catalog-controller"
+        ],
+        "operationId": "customer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/conversations/{id}/turns": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "turn",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Turn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims": {
+      "get": {
+        "tags": [
+          "claims-controller"
+        ],
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0,
+              "maximum": 10000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ClaimView"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "claims-controller"
+        ],
+        "operationId": "create",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClaim"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/verifications": {
+      "post": {
+        "tags": [
+          "claims-controller"
+        ],
+        "operationId": "verify_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Verification"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/submissions": {
+      "post": {
+        "tags": [
+          "claims-controller"
+        ],
+        "operationId": "submit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/simulated-payouts": {
+      "post": {
+        "tags": [
+          "claims-controller"
+        ],
+        "operationId": "simulate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Payment"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/risk-assessments": {
+      "post": {
+        "tags": [
+          "operations-controller"
+        ],
+        "operationId": "assess",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/reviews": {
+      "post": {
+        "tags": [
+          "claims-controller"
+        ],
+        "operationId": "review",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Review"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/rejections": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "reject",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Approval"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/provider-submissions": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "submit_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/provider-reconciliations": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "reconcile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/payout-reconciliations": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "paymentReconcile",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/mock-provider-receipts": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "receipt",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Receipt"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/evidence": {
+      "get": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "evidenceList",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "evidence",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Evidence"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/evidence/{evidence}/resolutions": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "resolve",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "evidence",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Resolution"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/corrections": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "correction",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Correction"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/confirmations": {
+      "post": {
+        "tags": [
+          "claims-controller"
+        ],
+        "operationId": "confirm",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Confirmation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/approvals": {
+      "post": {
+        "tags": [
+          "claims-controller"
+        ],
+        "operationId": "approve",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Approval"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/channels/whatsapp/messages/{id}/intakes": {
+      "post": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "process",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Process"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/policies/{id}": {
+      "get": {
+        "tags": [
+          "catalog-controller"
+        ],
+        "operationId": "policy",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/operations/metrics": {
+      "get": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "metrics",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/operations/dead-letters": {
+      "get": {
+        "tags": [
+          "operations-controller"
+        ],
+        "operationId": "dead",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}": {
+      "get": {
+        "tags": [
+          "claims-controller"
+        ],
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/audit": {
+      "get": {
+        "tags": [
+          "claims-controller"
+        ],
+        "operationId": "audit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/channels/whatsapp/messages": {
+      "get": {
+        "tags": [
+          "platform-controller"
+        ],
+        "operationId": "messages",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalog": {
+      "get": {
+        "tags": [
+          "catalog-controller"
+        ],
+        "operationId": "catalog",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ProviderEvent": {
+        "type": "object",
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "country_code": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "KE"
+          },
+          "internal_claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "event_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "country_code",
+          "event_id",
+          "internal_claim_id",
+          "tenant_id"
+        ]
+      },
+      "PolicyInput": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "policy_number": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "premium": {
+            "type": "number",
+            "minimum": 0.01
+          }
+        },
+        "required": [
+          "customer_id",
+          "end_date",
+          "policy_number",
+          "premium",
+          "start_date"
+        ]
+      },
+      "Approval": {
+        "type": "object",
+        "properties": {
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "evidence_reference"
+        ]
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "language": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "en-KE|sw-KE"
+          },
+          "template_key": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "claim_received|claim_updated"
+          },
+          "last_customer_message": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "opted_out": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "claim_id",
+          "language",
+          "last_customer_message",
+          "template_key"
+        ]
+      },
+      "TextIntake": {
+        "type": "object",
+        "properties": {
+          "policy_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 0
+          },
+          "language": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "en-KE|sw-KE"
+          }
+        },
+        "required": [
+          "language",
+          "policy_id",
+          "text"
+        ]
+      },
+      "ClaimView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "policy_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "intake_status": {
+            "type": "string"
+          },
+          "provider_claim_status": {
+            "type": "string"
+          },
+          "payout_status": {
+            "type": "string"
+          },
+          "claimant_verified": {
+            "type": "boolean"
+          },
+          "payee_verified": {
+            "type": "boolean"
+          },
+          "extraction": {
+            "$ref": "#/components/schemas/Extraction"
+          },
+          "obligation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "provider_kind": {
+            "type": "string"
+          },
+          "provider_revision": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ExtractedInteger": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "extracted",
+              "confirmed",
+              "unverified",
+              "missing"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "format": "double",
+            "maximum": 1,
+            "minimum": 0
+          },
+          "evidence_span": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ExtractedLocalDate": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "extracted",
+              "confirmed",
+              "unverified",
+              "missing"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "format": "double",
+            "maximum": 1,
+            "minimum": 0
+          },
+          "evidence_span": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ExtractedString": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "extracted",
+              "confirmed",
+              "unverified",
+              "missing"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "format": "double",
+            "maximum": 1,
+            "minimum": 0
+          },
+          "evidence_span": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          },
+          "source": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "Extraction": {
+        "type": "object",
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "2"
+          },
+          "language": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "en-KE|sw-KE"
+          },
+          "incident_type_code": {
+            "$ref": "#/components/schemas/ExtractedString"
+          },
+          "hospital_name": {
+            "$ref": "#/components/schemas/ExtractedString"
+          },
+          "admission_date": {
+            "$ref": "#/components/schemas/ExtractedLocalDate"
+          },
+          "discharge_date": {
+            "$ref": "#/components/schemas/ExtractedLocalDate"
+          },
+          "hospital_nights": {
+            "$ref": "#/components/schemas/ExtractedInteger"
+          },
+          "requires_confirmation": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "admission_date",
+          "discharge_date",
+          "hospital_name",
+          "hospital_nights",
+          "incident_type_code",
+          "language",
+          "schema_version"
+        ]
+      },
+      "CustomerInput": {
+        "type": "object",
+        "properties": {
+          "full_name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "mobile_number": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\+[1-9][0-9]{7,14}"
+          }
+        },
+        "required": [
+          "full_name",
+          "mobile_number"
+        ]
+      },
+      "Turn": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 0
+          },
+          "language": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "en-KE|sw-KE"
+          }
+        },
+        "required": [
+          "language",
+          "text"
+        ]
+      },
+      "CreateClaim": {
+        "type": "object",
+        "properties": {
+          "policy_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "extraction": {
+            "$ref": "#/components/schemas/Extraction"
+          }
+        },
+        "required": [
+          "extraction",
+          "policy_id"
+        ]
+      },
+      "Verification": {
+        "type": "object",
+        "properties": {
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "payee_verified": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "evidence_reference"
+        ]
+      },
+      "Payment": {
+        "type": "object",
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "CONFIRMED|UNKNOWN"
+          }
+        },
+        "required": [
+          "outcome"
+        ]
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "RECOMMEND_APPROVAL|REQUEST_INFORMATION|RECOMMEND_REJECTION"
+          },
+          "reason_code": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "decision",
+          "evidence_reference",
+          "reason_code"
+        ]
+      },
+      "Receipt": {
+        "type": "object",
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "CONFIRMED|FAILED"
+          },
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "evidence_reference",
+          "outcome"
+        ]
+      },
+      "Evidence": {
+        "type": "object",
+        "properties": {
+          "synthetic_text": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "synthetic_text"
+        ]
+      },
+      "Resolution": {
+        "type": "object",
+        "properties": {
+          "replacement_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "evidence_reference",
+          "replacement_id"
+        ]
+      },
+      "Correction": {
+        "type": "object",
+        "properties": {
+          "extraction": {
+            "$ref": "#/components/schemas/Extraction"
+          },
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "evidence_reference",
+          "extraction"
+        ]
+      },
+      "Confirmation": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "evidence_reference",
+          "fields"
+        ]
+      },
+      "Process": {
+        "type": "object",
+        "properties": {
+          "policy_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "language": {
+            "type": "string",
+            "pattern": "en-KE|sw-KE"
+          },
+          "fixture_transcript": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "language",
+          "policy_id"
+        ]
+      }
+    }
+  }
+}

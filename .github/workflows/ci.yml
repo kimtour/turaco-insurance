@@ -1,0 +1,117 @@
+name: SDLC gates
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '25', cache: maven}
+      - name: PostgreSQL Testcontainers integration and concurrency tests
+        working-directory: services/insurance-api
+        run: ./mvnw -B verify
+      - name: Generate dependency SBOM
+        working-directory: services/insurance-api
+        run: ./mvnw -B org.cyclonedx:cyclonedx-maven-plugin:2.9.1:makeAggregateBom
+      - name: Java dependency vulnerability scan
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          scan-type: sbom
+          scan-ref: services/insurance-api/target/bom.json
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: java-verification
+          path: |
+            services/insurance-api/target/surefire-reports/
+            services/insurance-api/target/bom.json
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with: {version: '0.10.4', python-version: '3.14'}
+      - working-directory: services/ai-service
+        run: uv sync --frozen
+      - working-directory: services/ai-service
+        run: uv run --frozen pytest -q
+      - working-directory: services/ai-service
+        run: uv run --frozen pip-audit
+  dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '24', cache: npm, cache-dependency-path: apps/claims-dashboard/package-lock.json}
+      - working-directory: apps/claims-dashboard
+        run: npm ci && npm run build && npm audit --audit-level=high
+  compose-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/setup-local.py
+      - run: docker compose up -d --build
+      - run: python3 scripts/demo.py
+      - run: python3 tests/e2e/full_platform.py
+      - run: python3 scripts/load-check.py
+      - run: python3 scripts/export-contracts.py
+      - name: Scan application images
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: turaco-insurance-insurance-api:latest
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: generated-api-contracts
+          path: docs/openapi/
+      - name: Stop local stack
+        if: always()
+        run: docker compose down -v
+      - uses: helm/kind-action@v1
+        with:
+          cluster_name: turaco
+          wait: 120s
+      - name: Load the tested images into kind
+        run: |
+          kind load docker-image --name turaco turaco-insurance-insurance-api:latest turaco-insurance-ai-service:latest turaco-insurance-provider-simulator:latest turaco-insurance-claims-dashboard:latest postgres:17.11-alpine quay.io/keycloak/keycloak:26.4.0
+      - name: Deploy the isolated synthetic environment
+        run: |
+          python3 scripts/render-kubernetes.py --check
+          kubectl create namespace turaco-synthetic
+          python3 scripts/kube-secrets.py --context kind-turaco
+          kubectl apply -k infrastructure/kubernetes
+          kubectl -n turaco-synthetic rollout status deployment/insurance-api --timeout=300s
+          kubectl -n turaco-synthetic rollout status deployment/ai-service --timeout=180s
+          kubectl -n turaco-synthetic rollout status deployment/provider-simulator --timeout=180s
+          kubectl -n turaco-synthetic rollout status deployment/claims-dashboard --timeout=180s
+      - name: Forward only local ports and verify the deployed services
+        run: |
+          kubectl -n turaco-synthetic port-forward service/insurance-api 8080:8080 >/tmp/turaco-api-forward.log 2>&1 &
+          kubectl -n turaco-synthetic port-forward service/keycloak 8081:8080 >/tmp/turaco-identity-forward.log 2>&1 &
+          kubectl -n turaco-synthetic port-forward service/ai-service 8000:8000 >/tmp/turaco-ai-forward.log 2>&1 &
+          kubectl -n turaco-synthetic port-forward service/provider-simulator 9000:9000 >/tmp/turaco-provider-forward.log 2>&1 &
+          python3 scripts/demo.py
+          python3 tests/e2e/full_platform.py
+  release-candidate:
+    needs: [java, python, dashboard, compose-demo]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '25', cache: maven}
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - working-directory: services/insurance-api
+        run: ./mvnw -B -DskipTests package org.cyclonedx:cyclonedx-maven-plugin:2.9.1:makeAggregateBom
+      - working-directory: apps/claims-dashboard
+        run: npm ci && npm run build
+      - run: python3 scripts/package-release.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-release-candidate-0.2.0
+          path: release/0.2.0/

@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: insurance-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/turaco}
+    username: ${DB_USER:turaco_local}
+    password: ${DB_PASSWORD}
+  flyway:
+    enabled: true
+  mvc:
+    log-request-details: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+app:
+  mode: ${APP_MODE:standalone}
+  seed: ${LOCAL_SEED:false}
+  issuer: ${OIDC_ISSUER:http://localhost:8081/realms/turaco-local}
+  jwk-uri: ${OIDC_JWK_URI:http://localhost:8081/realms/turaco-local/protocol/openid-connect/certs}
+  audience: insurance-api
+  cors-origin: ${DASHBOARD_ORIGIN:http://localhost:5173}
+  payload-key: ${PAYLOAD_ENCRYPTION_KEY:}
+  whatsapp-secret: ${WHATSAPP_APP_SECRET:}
+  whatsapp-verify-token: ${WHATSAPP_VERIFY_TOKEN:}
+  provider-callback-token: ${PROVIDER_CALLBACK_TOKEN:}
+  ai-url: ${AI_SERVICE_URL:http://localhost:8000}
+  ai-token: ${AI_SERVICE_TOKEN:}
+  simulator-url: ${SIMULATOR_URL:http://localhost:9000}
+  simulator-token: ${SIMULATOR_TOKEN:}
+  queue-worker-enabled: ${QUEUE_WORKER_ENABLED:false}
+server:
+  error:
+    include-message: never

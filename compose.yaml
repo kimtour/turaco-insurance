@@ -1,0 +1,87 @@
+name: turaco-insurance
+services:
+  postgres:
+    image: postgres:17.11-alpine
+    environment:
+      POSTGRES_DB: turaco
+      POSTGRES_USER: turaco_local
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Run scripts/setup-local.py first}
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U turaco_local -d turaco"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.0
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: local-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Run setup-local.py}
+      KC_HOSTNAME: http://localhost:8081
+      KC_HEALTH_ENABLED: "true"
+    ports: ["127.0.0.1:8081:8080"]
+    volumes: ["./infrastructure/keycloak/turaco-local-realm.json:/opt/keycloak/data/import/turaco-local-realm.json:ro"]
+  insurance-api:
+    build: ./services/insurance-api
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      LOCAL_SEED: "true"
+      APP_MODE: standalone
+      DB_URL: jdbc:postgresql://postgres:5432/turaco
+      DB_USER: turaco_local
+      DB_PASSWORD: ${DB_PASSWORD}
+      OIDC_ISSUER: http://localhost:8081/realms/turaco-local
+      OIDC_JWK_URI: http://keycloak:8080/realms/turaco-local/protocol/openid-connect/certs
+      DASHBOARD_ORIGIN: http://localhost:5173
+      PAYLOAD_ENCRYPTION_KEY: ${PAYLOAD_ENCRYPTION_KEY:?Run setup-local.py}
+      WHATSAPP_APP_SECRET: ${WHATSAPP_APP_SECRET:?Run setup-local.py}
+      WHATSAPP_VERIFY_TOKEN: ${WHATSAPP_VERIFY_TOKEN:?Run setup-local.py}
+      PROVIDER_CALLBACK_TOKEN: ${PROVIDER_CALLBACK_TOKEN:?Run setup-local.py}
+      AI_SERVICE_URL: http://ai-service:8000
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN}
+      SIMULATOR_URL: http://provider-simulator:9000
+      SIMULATOR_TOKEN: ${SIMULATOR_TOKEN:?Run setup-local.py}
+      QUEUE_WORKER_ENABLED: "true"
+    ports: ["127.0.0.1:${API_PORT:-8080}:8080"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      keycloak: {condition: service_started}
+  ai-service:
+    build:
+      context: .
+      dockerfile: services/ai-service/Dockerfile
+    environment:
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?Run setup-local.py}
+      AI_PROVIDER: ${AI_PROVIDER:-mock}
+      REAL_PROVIDER_ENABLED: ${REAL_PROVIDER_ENABLED:-false}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-}
+      LANGFUSE_ENABLED: ${LANGFUSE_ENABLED:-false}
+      LANGFUSE_BASE_URL: ${LANGFUSE_BASE_URL:-}
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
+      CONVERSATION_DB: /data/conversations.sqlite
+    ports: ["127.0.0.1:8000:8000"]
+    volumes: ["conversation-data:/data"]
+  provider-simulator:
+    build:
+      context: .
+      dockerfile: services/ai-service/Dockerfile
+    command: [".venv/bin/uvicorn", "app.simulator:app", "--host", "0.0.0.0", "--port", "9000"]
+    environment:
+      SIMULATOR_TOKEN: ${SIMULATOR_TOKEN}
+      SIMULATOR_DB: /data/provider.sqlite
+    ports: ["127.0.0.1:9000:9000"]
+    volumes: ["simulator-data:/data"]
+  claims-dashboard:
+    build: ./apps/claims-dashboard
+    ports: ["127.0.0.1:5173:8080"]
+    depends_on: [insurance-api]
+volumes:
+  postgres-data:
+  conversation-data:
+  simulator-data:

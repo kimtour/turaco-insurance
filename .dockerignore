@@ -1,0 +1,14 @@
+.git
+.env
+.env.*
+.cache
+release
+**/.env
+**/.env.*
+**/.pytest_cache
+**/.venv
+**/target
+**/node_modules
+**/dist
+**/__pycache__
+test-results

@@ -1,0 +1,708 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Turaco synthetic extraction",
+    "version": "0.2.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capabilities": {
+      "get": {
+        "summary": "Capabilities",
+        "operationId": "capabilities_v1_capabilities_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/extract-claim": {
+      "post": {
+        "summary": "Extract",
+        "operationId": "extract_v1_extract_claim_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtractionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimExtraction"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversations/turn": {
+      "post": {
+        "summary": "Conversation",
+        "operationId": "conversation_v1_conversations_turn_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Turn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/verify-document": {
+      "post": {
+        "summary": "Document",
+        "operationId": "document_v1_verify_document_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DocumentCheck"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/transcribe": {
+      "post": {
+        "summary": "Transcribe",
+        "operationId": "transcribe_v1_transcribe_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ClaimExtraction": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "2",
+            "title": "Schema Version"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "en-KE",
+              "sw-KE"
+            ],
+            "title": "Language"
+          },
+          "incident_type_code": {
+            "$ref": "#/components/schemas/Extracted_str_"
+          },
+          "hospital_name": {
+            "$ref": "#/components/schemas/Extracted_str_"
+          },
+          "admission_date": {
+            "$ref": "#/components/schemas/Extracted_date_"
+          },
+          "discharge_date": {
+            "$ref": "#/components/schemas/Extracted_date_"
+          },
+          "hospital_nights": {
+            "$ref": "#/components/schemas/Extracted_int_"
+          },
+          "requires_confirmation": {
+            "type": "boolean",
+            "const": true,
+            "title": "Requires Confirmation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "language",
+          "incident_type_code",
+          "hospital_name",
+          "admission_date",
+          "discharge_date",
+          "hospital_nights",
+          "requires_confirmation"
+        ],
+        "title": "ClaimExtraction"
+      },
+      "DocumentCheck": {
+        "properties": {
+          "synthetic_text": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Synthetic Text"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "en-KE",
+              "sw-KE"
+            ],
+            "title": "Language"
+          },
+          "extraction": {
+            "$ref": "#/components/schemas/EvidenceExtraction"
+          }
+        },
+        "type": "object",
+        "required": [
+          "synthetic_text",
+          "language",
+          "extraction"
+        ],
+        "title": "DocumentCheck"
+      },
+      "EvidenceExtraction": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "2",
+            "title": "Schema Version"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "en-KE",
+              "sw-KE"
+            ],
+            "title": "Language"
+          },
+          "incident_type_code": {
+            "$ref": "#/components/schemas/Extracted_str_"
+          },
+          "hospital_name": {
+            "$ref": "#/components/schemas/Extracted_str_"
+          },
+          "admission_date": {
+            "$ref": "#/components/schemas/Extracted_date_"
+          },
+          "discharge_date": {
+            "$ref": "#/components/schemas/Extracted_date_"
+          },
+          "hospital_nights": {
+            "$ref": "#/components/schemas/Extracted_int_"
+          },
+          "requires_confirmation": {
+            "type": "boolean",
+            "title": "Requires Confirmation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "language",
+          "incident_type_code",
+          "hospital_name",
+          "admission_date",
+          "discharge_date",
+          "hospital_nights",
+          "requires_confirmation"
+        ],
+        "title": "EvidenceExtraction"
+      },
+      "Extracted_date_": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FieldStatus"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "evidence_span": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Span"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "status",
+          "confidence",
+          "evidence_span",
+          "source"
+        ],
+        "title": "Extracted[date]"
+      },
+      "Extracted_int_": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FieldStatus"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "evidence_span": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Span"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "status",
+          "confidence",
+          "evidence_span",
+          "source"
+        ],
+        "title": "Extracted[int]"
+      },
+      "Extracted_str_": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FieldStatus"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "evidence_span": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Span"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "status",
+          "confidence",
+          "evidence_span",
+          "source"
+        ],
+        "title": "Extracted[str]"
+      },
+      "ExtractionRequest": {
+        "properties": {
+          "transcript": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Transcript"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "en-KE",
+              "sw-KE"
+            ],
+            "title": "Language"
+          },
+          "incident_catalog": {
+            "items": {
+              "type": "string",
+              "const": "HOSPITALIZATION"
+            },
+            "type": "array",
+            "maxItems": 1,
+            "minItems": 1,
+            "title": "Incident Catalog"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "transcript",
+          "language"
+        ],
+        "title": "ExtractionRequest"
+      },
+      "FieldStatus": {
+        "type": "string",
+        "enum": [
+          "extracted",
+          "confirmed",
+          "unverified",
+          "missing"
+        ],
+        "title": "FieldStatus"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Turn": {
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tenant Id"
+          },
+          "country_code": {
+            "type": "string",
+            "const": "KE",
+            "title": "Country Code"
+          },
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Conversation Id"
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "en-KE",
+              "sw-KE"
+            ],
+            "title": "Language"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tenant_id",
+          "country_code",
+          "conversation_id",
+          "language",
+          "text"
+        ],
+        "title": "Turn"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

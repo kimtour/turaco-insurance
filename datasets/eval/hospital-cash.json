@@ -1,0 +1,6 @@
+[
+  {"id":"en-complete","language":"en-KE","transcript":"Synthetic hospitalization. Hospital: Demo Nairobi Hospital. Admitted 2026-09-01 and discharged 2026-09-04.","expected":{"hospital_name":"Demo Nairobi Hospital","admission_date":"2026-09-01","discharge_date":"2026-09-04","incident_type_code":"HOSPITALIZATION"}},
+  {"id":"sw-complete","language":"sw-KE","transcript":"Mfano wa kulazwa. Hospitali: Demo Nairobi Hospital. Nililazwa 2026-09-01 na niliruhusiwa 2026-09-04.","expected":{"hospital_name":"Demo Nairobi Hospital","admission_date":"2026-09-01","discharge_date":"2026-09-04","incident_type_code":"HOSPITALIZATION"}},
+  {"id":"code-switch","language":"sw-KE","transcript":"Mfano wa kulazwa. Hospital: Demo Nairobi Hospital. Nililazwa 2026-09-01 and discharged 2026-09-04.","expected":{"hospital_name":"Demo Nairobi Hospital","admission_date":"2026-09-01","discharge_date":"2026-09-04","incident_type_code":"HOSPITALIZATION"}},
+  {"id":"missing-discharge","language":"en-KE","transcript":"Synthetic hospitalization. Hospital: Demo Nairobi Hospital. Admitted 2026-09-01.","expected":{"hospital_name":"Demo Nairobi Hospital","admission_date":"2026-09-01","discharge_date":null,"incident_type_code":"HOSPITALIZATION"}}
+]

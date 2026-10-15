@@ -1,0 +1,21 @@
+[project]
+name = "turaco-ai-service"
+version = "0.2.0"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "fastapi>=0.118,<1",
+    "uvicorn>=0.37,<1",
+    "pydantic>=2.12,<3",
+    "openai>=2,<3",
+    "anthropic>=0.70,<1",
+    "langgraph>=1,<2",
+    "langgraph-checkpoint-sqlite>=3,<4",
+    "langfuse>=3,<4",
+]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "httpx>=0.28,<1", "pip-audit>=2.9,<3"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
