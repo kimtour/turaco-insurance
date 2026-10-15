@@ -18,6 +18,7 @@ jobs:
       - name: Java dependency vulnerability scan
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
         with:
+          version: v0.76.0
           scan-type: sbom
           scan-ref: services/insurance-api/target/bom.json
           severity: HIGH,CRITICAL
@@ -62,6 +63,7 @@ jobs:
       - name: Scan application images
         uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
         with:
+          version: v0.76.0
           image-ref: turaco-insurance-insurance-api:latest
           severity: HIGH,CRITICAL
           exit-code: '1'
