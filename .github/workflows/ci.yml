@@ -122,11 +122,14 @@ jobs:
         with: {distribution: temurin, java-version: '25', cache: maven}
       - uses: actions/setup-node@v4
         with: {node-version: '24'}
+      - name: Test release inventory and provenance checks
+        run: python3 -m unittest discover -s tests -p 'test_release_tools.py'
       - working-directory: services/insurance-api
         run: ./mvnw -B -DskipTests package org.cyclonedx:cyclonedx-maven-plugin:2.9.1:makeAggregateBom
       - working-directory: apps/claims-dashboard
         run: npm ci && npm run build
       - run: python3 scripts/package-release.py
+      - run: python3 scripts/verify-release.py --directory release/0.2.0
       - uses: actions/upload-artifact@v4
         with:
           name: synthetic-release-candidate-0.2.0

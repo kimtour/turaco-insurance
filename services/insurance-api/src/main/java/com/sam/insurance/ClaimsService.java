@@ -4,8 +4,6 @@ import static com.sam.insurance.Contracts.*;
 import static org.springframework.http.HttpStatus.*;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.security.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -145,18 +143,32 @@ public class ClaimsService {
 
   @Transactional
   public ClaimView create(Scope s, String key, CreateClaim input) {
+    lockCreation(s, key);
+    String digest = EncryptedPayloads.digest(db.json(input));
+    var replay = db.rows(s,
+        "SELECT id,request_digest FROM claim WHERE tenant_id=? AND country_code=? AND client_key=?", key);
+    if (!replay.isEmpty()) {
+      require(digest.equals(replay.getFirst().get("request_digest")),
+          "Idempotency key was already used for a different request");
+      return get(s, (UUID) replay.getFirst().get("id"));
+    }
+    return insert(s, key, input, digest);
+  }
+
+  void lockCreation(Scope s, String key) {
     if (key == null || !key.matches("[A-Za-z0-9:_-]{1,120}"))
       throw new ResponseStatusException(BAD_REQUEST, "A valid Idempotency-Key is required");
-    String digest;
-    try {
-      digest =
-          HexFormat.of()
-              .formatHex(
-                  MessageDigest.getInstance("SHA-256")
-                      .digest(db.json(input).getBytes(StandardCharsets.UTF_8)));
-    } catch (NoSuchAlgorithmException e) {
-      throw new IllegalStateException(e);
-    }
+    db.rows(s,
+        "SELECT pg_advisory_xact_lock(hashtextextended(?::text || ':' || ?::text || ':' || ?,0))", key);
+  }
+
+  String evidenceDigest(Extraction extraction) {
+    return EncryptedPayloads.digest(db.json(Arrays.asList(extraction.language(),
+        extraction.incident_type_code().value(), extraction.hospital_name().value(),
+        extraction.admission_date().value(), extraction.discharge_date().value())));
+  }
+
+  private ClaimView insert(Scope s, String key, CreateClaim input, String digest) {
     adapter.findPolicy(s, input.policy_id());
     Extraction e = input.extraction();
     if (e.incident_type_code().value() != null
@@ -357,6 +369,12 @@ public class ClaimsService {
             || ("LOCAL_SIMULATOR".equals(row.get("provider_kind"))
                 && Set.of("PROCESSING", "APPROVED").contains(row.get("provider_claim_status")))),
         "Only a submitted claim awaiting local review can be reviewed");
+    require(
+        "NOT_AUTHORIZED".equals(row.get("payout_status")),
+        "Claims with reserved or completed payouts cannot be reviewed");
+    require(
+        "SUBMITTED".equals(row.get("intake_status")),
+        "Claim must be resubmitted before review");
     db.update(
         s,
         "INSERT INTO"
@@ -390,7 +408,9 @@ public class ClaimsService {
     Map<String, Object> row = lock(s, id);
     if (get(s, id).obligation_id() != null) return get(s, id);
     require(
-        ("LOCAL_SIMULATOR".equals(row.get("provider_kind"))
+        "SUBMITTED".equals(row.get("intake_status"))
+            && (boolean) row.get("claimant_verified")
+            && ("LOCAL_SIMULATOR".equals(row.get("provider_kind"))
                 ? "APPROVED".equals(row.get("provider_claim_status"))
                 : "RECEIVED".equals(row.get("provider_claim_status")))
             && (boolean) row.get("payee_verified"),
@@ -404,14 +424,19 @@ public class ClaimsService {
     require(
         !reviews.isEmpty() && "RECOMMEND_APPROVAL".equals(reviews.getFirst().get("decision")),
         "Latest review must recommend approval");
+    String currentEvidence = evidenceDigest(extraction(row));
     require(
         db.rows(
                 s,
-                "SELECT e.id FROM claim_evidence e LEFT JOIN evidence_resolution r ON"
-                    + " e.id=r.evidence_id AND e.tenant_id=r.tenant_id AND"
-                    + " e.country_code=r.country_code WHERE e.tenant_id=? AND e.country_code=? AND"
-                    + " e.claim_id=? AND e.verification_status<>'MATCH' AND r.id IS NULL",
-                id)
+                "SELECT e.id FROM claim_evidence e WHERE e.tenant_id=? AND e.country_code=? AND"
+                    + " e.claim_id=? AND (e.verification_status<>'MATCH' OR e.extraction_digest IS DISTINCT FROM ?)"
+                    + " AND NOT EXISTS (SELECT 1 FROM evidence_resolution r JOIN claim_evidence replacement"
+                    + " ON replacement.id=r.replacement_id AND replacement.tenant_id=r.tenant_id"
+                    + " AND replacement.country_code=r.country_code WHERE r.evidence_id=e.id"
+                    + " AND r.tenant_id=e.tenant_id AND r.country_code=e.country_code"
+                    + " AND replacement.claim_id=e.claim_id AND replacement.verification_status='MATCH'"
+                    + " AND replacement.extraction_digest=?)",
+                id, currentEvidence, currentEvidence)
             .isEmpty(),
         "Evidence discrepancy requires corrected evidence and human review");
     Map<String, Object> b = eligibility(s, row);
