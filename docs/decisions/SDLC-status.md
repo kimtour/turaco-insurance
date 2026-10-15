@@ -1,78 +1,91 @@
-# Six-phase SDLC status · 0.2.0
+# SDLC status
 
-15 October 2026, Africa/Nairobi. The user authorized all six phases with local simulators for unavailable external services. This is a synthetic local reference release candidate, not an approved insurance production launch.
+Independent synthetic reference implementation. Not an official Turaco system.
 
 ## Verified source
 
-- Public repository: https://github.com/kimtour/turaco-insurance
+- Repository: https://github.com/kimtour/turaco-insurance (public)
 - Branch: `codex/full-sdlc`
-- Tested application commit: `57e361ea0ea9d27e7c0730eb2f6c20cdc17b1a20`
-- Application version: `0.2.0`
-- Successful CI run: https://github.com/kimtour/turaco-insurance/actions/runs/38791009127
+- Tested commit: `57e361ea0ea9d27e7c0730eb2f6c20cdc17b1a20`
+- Application version: 0.2.0
+- CI run: https://github.com/kimtour/turaco-insurance/actions/runs/38791009127
+- Documentation commits made after the tested commit are recorded below and were not
+  themselves run through the full gate unless stated.
 
-This status update and the artifact verification record are documentation added after the tested commit. They do not change application code and are not represented as a new full-gate execution. Git history records their documentation commit; the runtime evidence below applies to the exact tested commit above.
+## Remote CI result (run 38791009127)
 
-## Phase coverage
+| Job | Result | Scope |
+|---|---|---|
+| java | Passed | PostgreSQL Testcontainers tests, SBOM, HIGH/CRITICAL dependency scan |
+| python | Passed | Locked install, tests, pip-audit |
+| dashboard | Passed | Production build, npm audit |
+| compose-demo | Passed | Image builds, authenticated demos, full-platform recovery workflow, load smoke, API export, Java application-image scan, kind deployment, authenticated Kubernetes demos |
+| release-candidate | Passed | Build, packaging, artifact upload |
 
-| Phase | Implemented and verified local behavior | External production gate |
+## Artifacts (non-expired at 2026-10-15)
+
+- `java-verification`: ID 12000651361
+- `generated-api-contracts`: ID 12000196781
+- `synthetic-release-candidate-0.2.0`: ID 11999099722
+
+Release artifact checksum verification: PASS, 2026-10-15, Codex (independent artifact inspection via GitHub API; all five listed files verified, none missing).
+Manifest commit/version: `57e361ea0ea9d27e7c0730eb2f6c20cdc17b1a20` / `0.2.0`.
+
+All 103 archived source files match the tested commit byte for byte. Source/UI archive contents were checked for unsafe and excluded runtime paths, and known generated local secret values were checked without printing them. These checks do not prove absence of every possible credential. The placeholder `.env.example` and documented synthetic fixture credentials are expected. Exact hashes, verification time and scope limits are recorded in [RELEASE-0.2.0-verification.json](RELEASE-0.2.0-verification.json).
+
+## Local release package
+
+`release/0.2.0/` now contains an unchanged copy of the independently verified CI artifact for
+`57e361ea0ea9d27e7c0730eb2f6c20cdc17b1a20`, including its original manifest and checksums.
+`docs/decisions/RELEASE-0.2.0-verification.json` records this current artifact's verification.
+The earlier local package, screenshot and `verification.json` for
+`1615427bf24152389798baaefd385b8de06ac7d9` were preserved under ignored
+`.cache/verification/superseded-release-1615427/` and labeled with `SUPERSEDED.md`.
+The original host measurements remain evidence for that earlier package.
+
+The Mac Docker engine remains unusable; successful container/Testcontainers/kind gates ran on GitHub's Linux runners. The CI source archive preserves documentation as it existed at the tested commit. Later documentation changes do not alter the verified archive.
+
+## Phase summary
+
+| Phase | Implemented and verified | External production gate |
 |---|---|---|
 | A | Scoped relational foundation, three state machines, asymmetric role checks, append-only history, reproducible host setup | Tenant/identity enrollment and official product terms |
 | B | OpenAI/Anthropic adapters, schema/provenance validation, fixture evaluation and uncertainty handling | Live provider access, DPA/vendor/model approval, representative gold evaluation |
 | C | Signed WhatsApp receipts, duplicates, encrypted persistence, media fallback, notification window/templates/opt-out previews | Meta account/template approvals, validated media scanning and real language/audio capabilities |
 | D | Durable LangGraph recovery, text-evidence comparisons/resolutions, human corrections/rejections, risk flags, independent provider simulator and authenticated authoritative callbacks | Real OCR/ASR and verified Turaco contracts; production encrypted checkpoint/retention system |
 | E | Human authorization, deterministic benefit, unique ledger, concurrency protection, UNKNOWN receipt-based reconciliation | Real payee/claimant verification and authorized provider disbursement contract |
-| F | Local worker/retries/DLQ/replay, metrics, redacted trace adapter, security scans, SBOM, load smoke, backup/restore, executed Compose/kind rehearsal and release packaging | Chosen AWS account/region, staging approval and operational/country signoff |
+| F | Local worker/retries/DLQ/replay, metrics, redacted trace adapter, security scans, SBOM, load smoke, backup/restore, CI, release packaging, Kubernetes rehearsal configuration | Chosen AWS account/region, staging approval and operational/country signoff |
 
-## Evidence from this machine
+## CI fix history (debugging record)
 
-- Java: 20 tests passed, no failures or skipped tests, using real PostgreSQL 17.11. Tests include concurrent creation/approval/payment, tenant boundaries, callback ordering, encrypted evidence/resolution, queue backoff/DLQ, risk routing, signature/issuer/audience/expiry and ciphertext tamper/context binding.
-- Python: 14 tests passed, including reopening durable conversation checkpoints, scope isolation, document conflicts, local provider persistence, mocked SDK contracts and telemetry redaction.
-- Authenticated full-platform workflow passed on a freshly initialized host database and Keycloak realm. Signed channel receipt replay, provider ownership, callback replay and ambiguous payout reconciliation were exercised across real local processes.
-- UI production build and npm audit passed. Python audit found no known vulnerabilities. Java CycloneDX inventory contains 100 components. Initial high/critical Jackson/Tomcat findings were patched to Jackson 2.21.7/3.1.7 and Tomcat 11.0.25; the patched inventory scan has zero high/critical findings.
-- Workflow validation and Kubernetes rendering consistency passed. Container-source configuration had no high/critical failures. Kubernetes has one explicit writable-root exception for the local-only Keycloak development fixture; it is not accepted as production identity configuration.
-- Bounded read smoke: 40 requests, four concurrent clients, zero errors; P50 33.72 ms, P95 420.27 ms on this machine. This is not capacity or availability certification.
-- Backup/restore rehearsal passed into an isolated disposable database. The original synthetic database and encryption key were preserved.
+1. Nonexistent Trivy action reference → pinned to the verified commit SHA.
+2. Action's default Trivy binary failed to install → pinned `v0.76.0`.
+3. Floating Temurin base shipped Pebble with three HIGH Go findings → moved to `noble` Ubuntu LTS variants.
+4. Keycloak kept stopping in kind → added probes and diagnostics, matched heap, raised memory limit. Exact root cause was not isolated; diagnostics did not confirm OOM.
 
-## Remote CI and release evidence
+## Not claimed
 
-All five jobs passed in run `38791009127` for commit `57e361e`:
+- Capacity: the load smoke (40 reads, concurrency 4, 0 errors, P95 420 ms) is not capacity certification.
+- Language quality: English/Swahili/mixed fixtures are not native-speaker accuracy certification.
+- Security scanning: the Java dependency set and Java runtime image passed HIGH/CRITICAL scans; Python and npm audits also passed. Scanning did not cover every third-party image.
+- Kubernetes: the kind rehearsal is not production security or network enforcement certification. The Keycloak dev fixture has a writable root by documented local-only exception.
+- OCR, ASR and malware validation remain unsupported or human-assisted.
+- No GitHub release or cloud deployment has been created.
 
-| Job | Verified scope |
-|---|---|
-| java | 20 tests using PostgreSQL Testcontainers, SBOM generation and HIGH/CRITICAL dependency scan |
-| python | Locked installation, 14 tests and pip-audit |
-| dashboard | Production build and npm audit |
-| compose-demo | Application image builds, authenticated demos, full-platform recovery, load smoke, API export, Java application-image scan, kind deployment and authenticated Kubernetes demos |
-| release-candidate | Java/UI build, packaging and artifact upload after all preceding jobs passed |
+## Open production gates (external approval required)
 
-Artifacts were confirmed non-expired on 15 October 2026:
+- Real identity and payee enrollment
+- Official policy and product terms
+- Meta approval and message templates
+- Representative language, model and media evaluation
+- Approved OCR, ASR and malware scanning
+- Vendor, privacy and country approvals
+- Production encrypted checkpoint and retention
+- Real provider and disbursement contracts
+- AWS/EKS: chosen account, region and residency policy, reviewed identity, secrets and TLS, managed database, backup, operational approval
 
-- `java-verification`: artifact ID `12000651361`
-- `generated-api-contracts`: artifact ID `12000196781`
-- `synthetic-release-candidate-0.2.0`: artifact ID `11999099722`
+`APP_MODE=integration` fails closed. No real payments, patient data or Turaco connection.
 
-Codex independently downloaded and verified the release artifact on 15 October 2026, Africa/Nairobi. All five SHA256 entries passed, with no missing or extra files. Its manifest identifies version `0.2.0`, commit `57e361ea0ea9d27e7c0730eb2f6c20cdc17b1a20`, synthetic classification and disabled live payments. The Java binary, UI build, source archive and 100-component CycloneDX inventory are present. All 103 source files match the tested commit byte for byte.
+## Documentation-only commits (not re-tested)
 
-The source and UI archives were inspected internally for unsafe paths and excluded environment/runtime/cache files; known generated local secret values were checked without printing them. The placeholder `.env.example` and documented synthetic fixture credentials are expected. This check does not establish the absence of every possible credential. Exact hashes, artifact metadata, timestamps, check results and scope limits are recorded in [RELEASE-0.2.0-verification.json](RELEASE-0.2.0-verification.json).
-
-The local Mac Docker engine remains unusable. GitHub's Linux runners supplied the successful Docker, Testcontainers and kind execution; this is no longer a pending engineering gate. The source archive preserves documentation as it existed at the tested commit; this later closeout note does not alter that archive.
-
-## Local release package
-
-`release/0.2.0/` now contains an unchanged copy of the verified CI artifact for `57e361e`, including its original manifest and checksums. The earlier local package, screenshot and `verification.json` for `1615427bf24152389798baaefd385b8de06ac7d9` were preserved under ignored `.cache/verification/superseded-release-1615427/` and labeled as superseded. Their earlier host measurements remain useful evidence, but that package is not the current CI release candidate.
-
-No GitHub release or AWS/cloud deployment has been created. Repository publication and CI execution do not authorize a production launch.
-
-## Verification limits
-
-- The 40-read, four-client load smoke is not capacity or availability certification.
-- English/Swahili/mixed-language synthetic fixtures are not representative or native-speaker accuracy certification.
-- Java dependencies and the Java application image passed HIGH/CRITICAL scans; Python and npm audits also passed. Scanning did not cover every third-party container image.
-- The kind rehearsal is not production security or network-policy enforcement certification. Keycloak's writable root remains a documented development-fixture exception.
-- Real OCR, ASR and malware validation remain unsupported or human-assisted.
-
-## Review findings resolved
-
-Closed unsafe/unclear paths found during implementation: model self-confirmation, duplicate obligations, UNKNOWN blind retry, unscoped access, missing OIDC subject mapping, callback bearer-token/JWT collision, stale webhook precedence, missing source inventory in vulnerability scans, baseline dependency CVEs, conflicting evidence reservation, invalid-pagination errors and stale dashboard audit-selection responses. Startup/shutdown was made reproducible and secrets/runtime files excluded from source and container contexts.
-
-Real data/vendor approval, native-speaker annotation, privacy/country review, real identity enrollment, official API contracts and AWS deployment authorization cannot be supplied by local code or simulation. They remain explicit external launch gates.
+- `1b4cea7a039c4c5ac04b04016b06db3889ed122b` — status and independently verified artifact evidence; documentation only, not re-tested. Subsequent documentation commit identities are recorded in Git history. Runtime evidence remains tied to `57e361e`.
