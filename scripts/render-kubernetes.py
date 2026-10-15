@@ -42,7 +42,7 @@ realm=(ROOT/"infrastructure/keycloak/turaco-local-realm.json").read_text()
 items.append({"apiVersion":"v1","kind":"ConfigMap","metadata":{"name":"turaco-local-realm"},"data":{"turaco-local-realm.json":realm}})
 component("postgres","postgres:17.11-alpine",5432,{"POSTGRES_DB":"turaco","POSTGRES_USER":"turaco_local","POSTGRES_PASSWORD":secret("DB_PASSWORD"),"PGDATA":"/var/lib/postgresql/data/pgdata"},persistent="/var/lib/postgresql/data",uid=70,mounts=[({"name":"socket","emptyDir":{}},{"name":"socket","mountPath":"/var/run/postgresql"})])
 component("keycloak","quay.io/keycloak/keycloak:26.4.0",8080,{"KC_BOOTSTRAP_ADMIN_USERNAME":"local-admin","KC_BOOTSTRAP_ADMIN_PASSWORD":secret("KEYCLOAK_ADMIN_PASSWORD"),"KC_HOSTNAME":"http://localhost:8081"},
-    command=["/opt/keycloak/bin/kc.sh","start-dev","--import-realm"],persistent="/opt/keycloak/data",uid=1000,memory="768Mi",
+    command=["/opt/keycloak/bin/kc.sh","start-dev","--import-realm"],persistent="/opt/keycloak/data",uid=1000,memory="768Mi",health="/realms/turaco-local/.well-known/openid-configuration",
     mounts=[({"name":"realm","configMap":{"name":"turaco-local-realm"}},{"name":"realm","mountPath":"/opt/keycloak/data/import","readOnly":True})])
 # Keycloak's first dev-mode augmentation writes its installed libraries. This synthetic
 # identity fixture needs a writable root; it is never a production deployment.
