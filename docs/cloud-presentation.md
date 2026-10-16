@@ -20,7 +20,7 @@ The Cloudflare presentation hub provides the live workspace, this guide, archite
 
 **Architecture · 1 minute.** React → Java API → PostgreSQL, with Keycloak roles. Python handles schema-validated extraction and durable conversations. Independent local simulators stand in for providers, channels, payouts and queue delivery. Cloudflare fronts the presentation; GitHub hosts the actual compute.
 
-**Happy path · 3 minutes.** Create a sample intake. For each action, enter a synthetic evidence reference in the required field; the field clears after a successful action. Record customer confirmation, then assisted identity/payee verification. Submit, recommend approval, approve/reserve the deterministic benefit, then simulate a confirmed payout. Three covered nights produce KES 4,500 under the invented policy. Show the audit trail.
+**Happy path · 3 minutes.** Create a sample intake. For each action, enter a synthetic evidence reference in the required field; the field clears after a successful action. Record customer confirmation, then assisted identity/payee verification. If an action conflicts with a newer state, the claim refreshes and the message appears beside the controls. Submit, recommend approval, approve/reserve the deterministic benefit, then simulate a confirmed payout. Three covered nights produce KES 4,500 under the invented policy. Show the audit trail.
 
 **Failure and recovery · 2 minutes.** On a second approved claim, expand recovery tools and simulate an UNKNOWN payout. Another attempt is blocked. Record a separate mock provider receipt, then reconcile. For evidence review, attach conflicting synthetic text, attach matching text, and record the reviewed replacement before approval. Corrections reopen confirmation.
 

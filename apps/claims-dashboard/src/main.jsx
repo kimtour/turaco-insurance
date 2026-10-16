@@ -48,10 +48,21 @@ function App() {
       headers:{Authorization:'Bearer '+token, ...(body === undefined?{}:{'Content-Type':'application/json'}), ...(key?{'Idempotency-Key':key}:{})},
       ...(body === undefined?{}:{body:JSON.stringify(body)})});
     const data = await response.json().catch(()=>({}));
-    if (session.current !== token) throw new Error('The account changed. Repeat the action in the current session.');
+    if (session.current !== token) {
+      const error = new Error('The account changed. Repeat the action in the current session.');
+      error.status = 401;
+      throw error;
+    }
     if (!response.ok) {
-      if (response.status === 401) {signOut();throw new Error('Your session ended. Sign in again.');}
-      throw new Error(typeof data.detail === 'string' ? data.detail : `Request could not be completed (${response.status}).`);
+      if (response.status === 401) {
+        signOut();
+        const error = new Error('Your session ended. Sign in again.');
+        error.status = response.status;
+        throw error;
+      }
+      const error = new Error(typeof data.detail === 'string' ? data.detail : `Request could not be completed (${response.status}).`);
+      error.status = response.status;
+      throw error;
     }
     return data;
   }
@@ -95,9 +106,26 @@ function App() {
   async function act(path,body) {
     const validationError = evidenceReferenceError(reference);
     if(validationError) {setActionError(validationError);referenceInput.current?.focus();return;}
-    setBusy(true);setActionError('');
+    setBusy(true);setError('');setActionError('');
     try {await api(`/claims/${selected.id}/${path}`,body);await load();setReference('');}
-    catch(e) {setActionError(e.message);} finally {setBusy(false);}
+    catch(e) {
+      if(e.status===409) {
+        try {
+          await load(selected.id);
+          setActionError(`${e.message} The claim was refreshed. Review its current status before trying again.`);
+        } catch(refreshError) {
+          if(refreshError.status===401) {
+            setError(refreshError.message);
+          } else {
+            setActionError(`${e.message} The latest claim status could not be refreshed: ${refreshError.message}`);
+          }
+        }
+      } else if(e.status===401) {
+        setError(e.message);
+      } else {
+        setActionError(e.message);
+      }
+    } finally {setBusy(false);}
   }
   const e = selected?.extraction;
   const actionable = selected && !['APPROVED','REJECTED','CLOSED'].includes(selected.provider_claim_status);
