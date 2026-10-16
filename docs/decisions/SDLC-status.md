@@ -133,3 +133,25 @@ The Mac Docker engine remains unusable; successful container/Testcontainers/kind
   verified; its manifest source commit remains `24935a7ff5d69cb677d0444927970da8a0695218`.
   GitHub Actions reported non-blocking maintenance notices for older action runtimes and
   the upcoming ubuntu-latest image change; these did not fail any gate.
+
+## Interview publishing checkpoint, 16 October 2026
+
+Application and documentation checkpoint `8c27c1440a2ea605e20738cfaa15cb4b9b7b3a32` passed both
+[CI run 38880620013](https://github.com/kimtour/turaco-insurance/actions/runs/38880620013) and
+[CI run 38880619991](https://github.com/kimtour/turaco-insurance/actions/runs/38880619991).
+The deployed application is `53553fd`, with the confirmation feedback and conflict-refresh fixes.
+
+The stopped Codespace was resumed and all six services were running. Dashboard port 5173
+reset to private on resume; restoring its public visibility recovered the presentation
+gateway. The synthetic authenticated cloud workflow passed inside the resumed workspace.
+This verifies resume with a documented port repair, not unattended always-on operation.
+
+The hub now publishes a nine-slide browser presentation, an editable PowerPoint with
+presenter notes, and a portable Markdown handoff. The handoff is intentionally tracked at
+`docs/AI-HANDOFF.md`; the older machine-specific root handoff remains ignored.
+
+- [Browser presentation](https://turaco-presentation.kimani-mutua.workers.dev/deck/)
+- [Portable handoff](https://turaco-presentation.kimani-mutua.workers.dev/handoff/AI-HANDOFF.md)
+
+The historical 0.2.0 candidate remains unchanged. These materials do not close the
+external production gates listed above.

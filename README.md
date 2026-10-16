@@ -109,3 +109,13 @@ Langfuse is disabled by default. Its opt-in adapter exports only language, provi
 - [Source reuse](docs/decisions/ADR-001-foundation.md), [six-phase decisions](docs/decisions/ADR-002-local-platform.md)
 
 `APP_MODE=integration` fails closed: no verified official Turaco adapter or disbursement contract exists. Speech/PDF/image OCR and real malware scanning remain human-assisted/external validation gates; the local document parser does not pretend to perform those tasks. Real identity enrollment, policy terms, vendor agreements, residency/retention and country approvals are required before real data. No cloud resources or real transfers are created by the local stack.
+
+### Interview materials
+
+- [Browser presentation](https://turaco-presentation.kimani-mutua.workers.dev/deck/)
+- [PowerPoint with presenter notes](https://turaco-presentation.kimani-mutua.workers.dev/deck/turaco-interview.pptx)
+- [Portable AI handoff](https://turaco-presentation.kimani-mutua.workers.dev/handoff/AI-HANDOFF.md)
+
+The deck, handoff and reference documents are served by Cloudflare. Resume the
+Codespace before using the live application. Port 5173 may need its public visibility
+restored after resume; the handoff includes the recovery steps.
