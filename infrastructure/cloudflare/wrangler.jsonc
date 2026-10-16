@@ -20,8 +20,8 @@
     "enabled": false
   },
   "vars": {
-    "BACKEND_ORIGIN": "https://turaco-interview-presentation-gjpx5g4p543wj5q-5173.app.github.dev",
-    "CODESPACE_URL": "https://github.com/codespaces/turaco-interview-presentation-gjpx5g4p543wj5q",
+    "BACKEND_ORIGIN": "https://turaco-presentation-gateway-x74r9j5p572vvv7-5173.app.github.dev",
+    "CODESPACE_URL": "https://github.com/codespaces/turaco-presentation-gateway-x74r9j5p572vvv7",
     "REFERENCE_COMMIT": "24935a7ff5d69cb677d0444927970da8a0695218"
   }
 }

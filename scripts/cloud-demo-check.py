@@ -11,7 +11,7 @@ import uuid
 
 def verify(base, seed=False):
     def request(path, body=None, token=None, form=False, key=None):
-        headers = {}
+        headers = {'User-Agent': 'Turaco-Cloud-Verification/0.2'}
         if token:
             headers['Authorization'] = 'Bearer ' + token
         if key:

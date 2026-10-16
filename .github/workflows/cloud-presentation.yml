@@ -17,6 +17,10 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - name: Verify the cloud workspace base image has startup dependencies
+        run: |
+          docker build -t turaco-cloud-workspace .devcontainer
+          docker run --rm --entrypoint python3 turaco-cloud-workspace --version
       - name: Build the existing stack with its cloud gateway
         run: bash .devcontainer/start-demo.sh --build
       - name: Verify authentication and UNKNOWN recovery through the gateway

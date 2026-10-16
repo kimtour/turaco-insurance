@@ -1,13 +1,22 @@
 services:
+  postgres:
+    restart: unless-stopped
+  ai-service:
+    restart: unless-stopped
+  provider-simulator:
+    restart: unless-stopped
   keycloak:
+    restart: unless-stopped
     environment:
       KC_HOSTNAME: http://keycloak:8080
       JAVA_OPTS_KC_HEAP: -Xms128m -Xmx384m
   insurance-api:
+    restart: unless-stopped
     environment:
       OIDC_ISSUER: http://keycloak:8080/realms/turaco-local
       JAVA_TOOL_OPTIONS: -Xms128m -Xmx384m
   claims-dashboard:
+    restart: unless-stopped
     build:
       args:
         VITE_PRESENTATION_MODE: "true"

@@ -1,6 +1,5 @@
 {
   "name": "Turaco cloud presentation",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/sshd:1": {}
@@ -22,5 +21,8 @@
   },
   "postCreateCommand": "bash .devcontainer/start-demo.sh --build",
   "postStartCommand": "bash .devcontainer/start-demo.sh",
-  "remoteUser": "vscode"
+  "remoteUser": "vscode",
+  "build": {
+    "dockerfile": "Dockerfile"
+  }
 }
