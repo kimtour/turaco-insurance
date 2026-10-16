@@ -26,5 +26,5 @@ services:
     build:
       args:
         VITE_PRESENTATION_MODE: "true"
-        VITE_TOKEN_URL: /demo/token
+        VITE_OIDC_URL: /demo/token
         NGINX_CONFIG: nginx.cloud.conf

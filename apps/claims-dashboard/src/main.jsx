@@ -75,7 +75,7 @@ function App() {
   async function login(event) {
     event.preventDefault();setBusy(true);setError('');
     try {
-      const response = await fetch(import.meta.env.VITE_TOKEN_URL || 'http://localhost:8081/realms/turaco-local/protocol/openid-connect/token',{
+      const response = await fetch(import.meta.env.VITE_OIDC_URL || 'http://localhost:8081/realms/turaco-local/protocol/openid-connect/token',{
         method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
         body:new URLSearchParams({grant_type:'password',client_id:'claims-local',username,password})});
       if(!response.ok) throw new Error('Sign-in failed. Check your demo account or try again after the service starts.');

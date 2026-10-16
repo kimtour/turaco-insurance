@@ -3,7 +3,8 @@ FROM python:3.14-slim
 COPY --from=uv /uv /usr/local/bin/uv
 WORKDIR /app
 COPY services/ai-service/pyproject.toml services/ai-service/uv.lock ./
-RUN uv sync --frozen --no-dev
+RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
+    UV_LINK_MODE=copy UV_CONCURRENT_DOWNLOADS=2 UV_HTTP_TIMEOUT=120 uv sync --frozen --no-dev
 COPY services/ai-service/app app
 RUN useradd --system --uid 10001 app && mkdir /data && chown app /data
 USER 10001
