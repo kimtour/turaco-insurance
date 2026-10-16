@@ -6,13 +6,13 @@ Independent synthetic reference implementation. Not an official Turaco system.
 
 - Repository: https://github.com/kimtour/turaco-insurance (public)
 - Branch: `codex/full-sdlc`
-- Tested commit: `83260ee865f100150ecf18d2ef2b6010bc1d29ea`
+- Tested commit: `24935a7ff5d69cb677d0444927970da8a0695218`
 - Application version: 0.2.0
-- CI run 15: https://github.com/kimtour/turaco-insurance/actions/runs/38849541989
-- All five jobs passed for the tested commit. Run 14 also passed on its parent
-  source-provenance fix; run 15 additionally verified the filtered Maven-wrapper restore.
+- CI run 17: https://github.com/kimtour/turaco-insurance/actions/runs/38853857653
+- All five jobs passed for the tested commit, including the completed operator workspace,
+  current-evidence metadata, provider-simulator API export and multilingual regression gate.
 
-## Remote CI result (run 38849541989)
+## Remote CI result (run 38853857653)
 
 | Job | Result | Scope |
 |---|---|---|
@@ -24,23 +24,40 @@ Independent synthetic reference implementation. Not an official Turaco system.
 
 ## Artifacts (non-expired at 2026-10-16)
 
-- `java-verification`: ID 12024885073
-- `generated-api-contracts`: ID 12023774457
-- `synthetic-release-candidate-0.2.0`: ID 12025090375, expires 2027-01-14
-- Release artifact ZIP SHA-256: `31b0a6c87a72e4f5c5368db75c9771a20e3d637946f0a54832aff10a5ed576d7`
+- `java-verification`: ID 12026004800
+- `generated-api-contracts`: ID 12026054830
+- `synthetic-release-candidate-0.2.0`: ID 12026128306, expires 2027-01-14
+- Release artifact ZIP SHA-256: `d08022634902b848d4de7e97c249678c2a52bfe68c040b8cad8456769a186038`
 
 The artifact was downloaded and verified locally on 2026-10-16. Its ZIP digest
 matched GitHub's artifact digest and all five payload checksums passed. The
-manifest identifies commit `83260ee865f100150ecf18d2ef2b6010bc1d29ea` / version
-`0.2.0`. All 108 source files match that commit's raw Git blobs byte for byte;
+manifest identifies commit `24935a7ff5d69cb677d0444927970da8a0695218` / version
+`0.2.0`. All 111 source files match that commit's raw Git blobs byte for byte;
 the dashboard archive has three files and the SBOM has 100 components. Full
 payload hashes and verification scope are recorded in
-[RELEASE-0.2.0-run-15-verification.json](RELEASE-0.2.0-run-15-verification.json).
+[RELEASE-0.2.0-run-17-verification.json](RELEASE-0.2.0-run-17-verification.json).
+
+- `synthetic-extraction-evaluation`: ID 12026680507; the checked-in report is
+  [EXTRACTION-run-17-evaluation.json](EXTRACTION-run-17-evaluation.json).
+
+## Completed workspace review
+
+- Local checks: 23 Java tests, 17 Python tests, eight release-tool tests, dashboard build,
+  all-six-phase authenticated E2E and isolated PostgreSQL backup/restore passed.
+- Browser checks: information request, correction, reconfirmation/resubmission, conflicting
+  evidence and reviewed matching replacement, human authorization, UNKNOWN fake payout
+  receipt/reconciliation, opt-out preview, health/dead-letter listing and final rejection.
+- Rejection left payout NOT_AUTHORIZED; recovered payout reached CONFIRMED without retry.
+- Sign-out cleared claim data; the reviewer account had no approval or payment controls.
+- The runbook documents these controls. Browser screenshots and detailed local QA results
+  remain under ignored `.cache/verification/`.
 
 ## Local release package
 
-`release/0.2.0/` contains the independently verified run 15 artifact for commit
-`83260ee865f100150ecf18d2ef2b6010bc1d29ea`. The previous local candidate for
+`release/0.2.0/` contains the independently verified run 17 artifact for commit
+`24935a7ff5d69cb677d0444927970da8a0695218`. The run 15 candidate is preserved under ignored
+`.cache/verification/superseded-release-83260ee/`, with its original
+[verification evidence](RELEASE-0.2.0-run-15-verification.json). The previous local candidate for
 `57e361ea0ea9d27e7c0730eb2f6c20cdc17b1a20` is preserved under ignored
 `.cache/verification/superseded-release-57e361e/`; its original verification record
 remains [RELEASE-0.2.0-verification.json](RELEASE-0.2.0-verification.json). The
@@ -71,7 +88,7 @@ The Mac Docker engine remains unusable; successful container/Testcontainers/kind
 
 ## Not claimed
 
-- Capacity: the load smoke (40 reads, concurrency 4, 0 errors, P95 420 ms) is not capacity certification.
+- Capacity: bounded synthetic load smoke is not capacity certification. The earlier run 15 measurement (40 reads, concurrency 4, 0 errors, P95 420 ms) is historical evidence, not a production target.
 - Language quality: English/Swahili/mixed fixtures are not native-speaker accuracy certification.
 - Security scanning: the Java dependency set and Java runtime image passed HIGH/CRITICAL scans; Python and npm audits also passed. Scanning did not cover every third-party image.
 - Kubernetes: the kind rehearsal is not production security or network enforcement certification. The Keycloak dev fixture has a writable root by documented local-only exception.
@@ -94,7 +111,9 @@ The Mac Docker engine remains unusable; successful container/Testcontainers/kind
 
 ## Current-head revalidation
 
-Run 15 passed all five jobs on commit `83260ee865f100150ecf18d2ef2b6010bc1d29ea`.
+Run 17 passed all five jobs on commit `24935a7ff5d69cb677d0444927970da8a0695218`.
 The release candidate was independently downloaded, checksum-verified and provenance-
-verified; its manifest source commit matches the tested commit. Only documentation
-updates follow this tested code/workflow commit.
+verified; its manifest source commit matches the tested commit. Only documentation/evidence
+updates follow this tested code/workflow commit. GitHub Actions reported non-blocking
+maintenance notices for older action runtimes and the upcoming ubuntu-latest image change;
+these did not fail any gate.

@@ -1,0 +1,44 @@
+{
+  "evaluation": "synthetic-regression-v1",
+  "provider": "deterministic-fixture-parser",
+  "production_validated": false,
+  "speech_evaluation": "not_performed_requires_consented_audio_and_native_speaker_annotations",
+  "groups": {
+    "en-KE/text": {
+      "fields": 8,
+      "correct": 8,
+      "cases": 2,
+      "true_positive": 7,
+      "false_positive": 0,
+      "false_negative": 0,
+      "critical_field_accuracy": 1.0,
+      "critical_field_error_rate": 0.0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "sw-KE/text": {
+      "fields": 4,
+      "correct": 4,
+      "cases": 1,
+      "true_positive": 4,
+      "false_positive": 0,
+      "false_negative": 0,
+      "critical_field_accuracy": 1.0,
+      "critical_field_error_rate": 0.0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "sw-KE/code-switch": {
+      "fields": 4,
+      "correct": 4,
+      "cases": 1,
+      "true_positive": 4,
+      "false_positive": 0,
+      "false_negative": 0,
+      "critical_field_accuracy": 1.0,
+      "critical_field_error_rate": 0.0,
+      "precision": 1.0,
+      "recall": 1.0
+    }
+  }
+}

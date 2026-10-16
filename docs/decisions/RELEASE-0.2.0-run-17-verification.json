@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "verifiedAtUtc": "2026-10-16",
+  "result": "passed",
+  "release": {
+    "version": "0.2.0",
+    "classification": "synthetic-local-reference",
+    "livePayments": false,
+    "sourceCommit": "24935a7ff5d69cb677d0444927970da8a0695218"
+  },
+  "workflow": {
+    "runNumber": 17,
+    "runId": "38853857653",
+    "url": "https://github.com/kimtour/turaco-insurance/actions/runs/38853857653",
+    "conclusion": "success",
+    "jobs": {
+      "java": "success",
+      "dashboard": "success",
+      "python": "success",
+      "compose-demo": "success",
+      "release-candidate": "success"
+    },
+    "artifact": {
+      "name": "synthetic-release-candidate-0.2.0",
+      "id": "12026128306",
+      "sha256": "d08022634902b848d4de7e97c249678c2a52bfe68c040b8cad8456769a186038",
+      "expiresAtUtc": "2027-01-14T05:04:15Z"
+    }
+  },
+  "payloadSha256": {
+    "claims-dashboard-0.2.0.tar.gz": "4f6b970f9ee63f3ce6368e82ec839a8353b32f555952a51b96656305b20ea633",
+    "insurance-api-0.2.0.jar": "a61dd03d010281d4eef332ef5fc866d056040a9e92054b34d4cec32abc19b49c",
+    "java-sbom.cdx.json": "b2fca3a4dc727b01f39e5579997702d2932f8e5e369db4bd5ce66c95ef001cc6",
+    "manifest.json": "7b3aee7852073cd8a61daec3e9fe0066c59fb0b87b09e3f3f678b763072c5e52",
+    "turaco-insurance-0.2.0-source.tar.gz": "1f4bd28f17e88a5db86e5b604c66073d3bca5267d55090a39b07ebd9b4ac1571"
+  },
+  "checks": {
+    "artifactZipDigestMatchesGitHub": true,
+    "payloadChecksums": "5/5 passed",
+    "sourceFilesMatchingRawGitBlobs": 111,
+    "dashboardFiles": 3,
+    "sbomComponents": 100,
+    "knownLocalSecretMatches": 0,
+    "archiveExclusions": "passed"
+  },
+  "scope": "Synthetic artifact integrity/provenance; not production certification or an exhaustive credential scan"
+}
