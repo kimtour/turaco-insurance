@@ -3,6 +3,7 @@ import {createRoot} from 'react-dom/client';
 import PlatformTools from './PlatformTools';
 import './styles.css';
 
+const HOSTED = import.meta.env.VITE_PRESENTATION_MODE === 'true';
 const POLICY = '44444444-4444-4444-4444-444444444444';
 const pretty = value => value?.replaceAll('_', ' ').toLowerCase() ?? '—';
 function auditDescription(event) {
@@ -74,10 +75,10 @@ function App() {
   async function login(event) {
     event.preventDefault();setBusy(true);setError('');
     try {
-      const response = await fetch('http://localhost:8081/realms/turaco-local/protocol/openid-connect/token',{
+      const response = await fetch(import.meta.env.VITE_TOKEN_URL || 'http://localhost:8081/realms/turaco-local/protocol/openid-connect/token',{
         method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
         body:new URLSearchParams({grant_type:'password',client_id:'claims-local',username,password})});
-      if(!response.ok) throw new Error('Sign-in failed. Check your local account and that Keycloak is running.');
+      if(!response.ok) throw new Error('Sign-in failed. Check your demo account or try again after the service starts.');
       const next=(await response.json()).access_token;session.current=next;setToken(next);setPassword('');
     } catch(e) {setError(e.message);} finally {setBusy(false);}
   }
@@ -103,22 +104,22 @@ function App() {
       <div className="brand"><span className="brand-icon">t</span> turaco<span className="brand-dot">.</span></div>
       <div className="sidebar-label">CLAIMS WORKSPACE</div>
       <div className="nav-active"><span>▦</span> Hospital Cash <span className="nav-count">{claims.length}</span></div>
-      <div className="sidebar-note"><span className="pulse"/> Standalone prototype<br/><small>Independent reference implementation</small></div>
+      <div className="sidebar-note"><span className="pulse"/> {HOSTED?'Cloud presentation':'Standalone prototype'}<br/><small>Independent reference implementation</small></div>
       <div className="sidebar-bottom"><div className="avatar">{token?username.slice(0,2).toUpperCase():'TC'}</div><div>{token?username:'Local workspace'}<small>Kenya · Synthetic data</small></div></div>
       {token && <button className="sign-out" onClick={signOut}>Sign out</button>}
     </aside>
     <main>
-      <header><span>Claims / <b>Hospital Cash</b></span><span className="environment"><span className="pulse"/> LOCAL DEMO</span></header>
-      <section className="intro"><div><div className="eyebrow">CARE, WITH ACCOUNTABILITY</div><h1>Every claim, accounted for.</h1><p>A clear path from first message to a reviewed decision.</p></div>
+      <header><span>Claims / <b>Hospital Cash</b></span><span className="environment"><span className="pulse"/> {HOSTED?'CLOUD DEMO':'LOCAL DEMO'}</span></header>
+      <section className="intro"><div><div className="eyebrow">CARE, WITH ACCOUNTABILITY</div><h1>Every claim, accounted for.</h1><p>A clear path from first message to a reviewed decision.</p>{HOSTED&&<p className="cloud-notice"><a href="/">← Presentation hub</a> · Live Java/Python reference stack in GitHub Codespaces · Synthetic inputs only. Source and verification evidence are available in the presentation hub.</p>}</div>
         {token && can('write') && <button className="primary" disabled={busy} onClick={create}>＋ Create sample intake</button>}
       </section>
       <div className="notice"><span>◈</span><div><strong>A safe place to test the journey.</strong> All customers and policy terms are synthetic. Every payout is simulated.</div><span className="tag">REFERENCE BUILD</span></div>
       {error && <div role="alert" className="error">{error}</div>}
-      {!token ? <section className="login-card"><div className="eyebrow">YOUR LOCAL WORKSPACE</div><h2>Sign in to review claims</h2><p>Use a seeded local account. Permissions are checked by the claims service.</p><form onSubmit={login}>
+      {!token ? <section className="login-card"><div className="eyebrow">YOUR LOCAL WORKSPACE</div><h2>Sign in to review claims</h2><p>Use a seeded demo account. Permissions are checked by the claims service.</p><form onSubmit={login}>
         <label>Account<select value={username} onChange={e=>setUsername(e.target.value)}><option value="approver">Approver · Full demo journey</option><option value="reviewer">Reviewer · Review only</option><option value="officer">Claims officer · Intake</option></select></label>
         <label>Password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" required placeholder="Local demo password"/></label>
         <button className="primary" disabled={busy}>{busy?'Signing in…':'Open workspace →'}</button>
-      </form><small>Local fixture password: <code>local-demo-only</code>. This sign-in is for synthetic development only.</small></section> : <>
+      </form><small>{HOSTED?'Demo fixture password:':'Local fixture password:'} <code>local-demo-only</code>. {HOSTED?'Synthetic presentation only. Data is retained while this cloud workspace exists. No real transfers or messages.':'This sign-in is for synthetic development only.'}</small></section> : <>
         <div className="stats"><div><span>THIS PAGE</span><strong>{claims.length}<small> claims</small></strong></div><div><span>AWAITING A DECISION</span><strong>{claims.filter(c=>c.provider_claim_status==='RECEIVED').length}<small> to review</small></strong></div><div><span>SIMULATED PAYOUTS</span><strong>{claims.filter(c=>c.payout_status==='CONFIRMED').length}<small> confirmed</small></strong></div><div className="stat-mode"><span>CONNECTED MODE</span><strong>{catalog?.mode==='standalone'?'Standalone':'Connecting…'}</strong><small>Human authorization required</small></div></div>
         <PlatformTools api={api} selected={selected} can={can} refresh={load} reportError={setError} busy={busy} setBusy={setBusy} reference={reference} setReference={setReference}/>
         <div className="columns"><section className="queue panel"><div className="panel-title"><h2>Claims inbox</h2><button className="text-button" disabled={busy||loading} onClick={()=>load().catch(e=>setError(e.message))}>↻ Refresh</button></div>

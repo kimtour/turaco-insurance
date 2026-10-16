@@ -4,6 +4,10 @@ A synthetic implementation of all six phases in [Handoff v5](docs/source/turaco_
 
 **No live payments or real patient data.** Local simulators stand in for external services that require access or validated contracts. [Implementation and verification status](docs/decisions/SDLC-status.md) distinguishes implemented behavior from external release gates.
 
+## Cloud presentation
+
+The presentation uses a Cloudflare Workers Free hub and the existing application in a GitHub Codespace's Docker stack. All presenter-facing documents, release downloads, source and handoff are hosted. See the [cloud presentation guide](docs/cloud-presentation.md). No local process is required. Included compute/storage quotas apply; retain a $0 Codespaces budget with usage blocking.
+
 ## Start the local workspace
 
 ### Without Docker — verified host-run path

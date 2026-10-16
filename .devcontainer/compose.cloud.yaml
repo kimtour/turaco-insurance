@@ -1,0 +1,15 @@
+services:
+  keycloak:
+    environment:
+      KC_HOSTNAME: http://keycloak:8080
+      JAVA_OPTS_KC_HEAP: -Xms128m -Xmx384m
+  insurance-api:
+    environment:
+      OIDC_ISSUER: http://keycloak:8080/realms/turaco-local
+      JAVA_TOOL_OPTIONS: -Xms128m -Xmx384m
+  claims-dashboard:
+    build:
+      args:
+        VITE_PRESENTATION_MODE: "true"
+        VITE_TOKEN_URL: /demo/token
+        NGINX_CONFIG: nginx.cloud.conf

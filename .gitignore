@@ -14,3 +14,6 @@ release/
 # Keep local editor preferences and the machine-specific handoff out of public source.
 .vscode/
 /AI_HANDOFF.md
+/infrastructure/cloudflare/public/
+/infrastructure/cloudflare/.wrangler/
+/infrastructure/cloudflare/.generated/

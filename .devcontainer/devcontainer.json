@@ -1,0 +1,11 @@
+{
+  "name": "Turaco cloud presentation",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "features": {"ghcr.io/devcontainers/features/docker-in-docker:2": {}},
+  "hostRequirements": {"cpus": 2, "memory": "4gb", "storage": "32gb"},
+  "forwardPorts": [5173],
+  "portsAttributes": {"5173": {"label": "Turaco live synthetic demo", "onAutoForward": "silent", "protocol": "http"}},
+  "postCreateCommand": "bash .devcontainer/start-demo.sh --build",
+  "postStartCommand": "bash .devcontainer/start-demo.sh",
+  "remoteUser": "vscode"
+}

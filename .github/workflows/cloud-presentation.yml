@@ -1,0 +1,29 @@
+name: Cloud presentation checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  presentation:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '24', cache: npm, cache-dependency-path: infrastructure/cloudflare/package-lock.json}
+      - working-directory: infrastructure/cloudflare
+        run: npm ci && npm run build && npm test && npm audit --audit-level=high
+      - working-directory: infrastructure/cloudflare
+        run: npx wrangler deploy --dry-run
+  cloud-stack:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the existing stack with its cloud gateway
+        run: bash .devcontainer/start-demo.sh --build
+      - name: Verify authentication and UNKNOWN recovery through the gateway
+        run: python3 scripts/cloud-demo-check.py --url http://127.0.0.1:5173
+      - name: Inspect failed startup
+        if: failure()
+        run: docker compose -f compose.yaml -f .devcontainer/compose.cloud.yaml logs --tail=50
+      - name: Stop disposable verification stack
+        if: always()
+        run: docker compose -f compose.yaml -f .devcontainer/compose.cloud.yaml down -v
