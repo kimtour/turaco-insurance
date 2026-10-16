@@ -52,12 +52,6 @@ def archive_files(path):
         return archive_members(archive)
 
 
-def git_archive_files(root, commit):
-    data = git(root, 'archive', '--format=tar', '--prefix=turaco-insurance/', commit)
-    with tarfile.open(fileobj=io.BytesIO(data), mode='r:') as archive:
-        return archive_members(archive)
-
-
 def verify_release(root, directory):
     root, directory = Path(root), Path(directory)
     if directory.is_symlink() or not directory.is_dir():
@@ -89,11 +83,10 @@ def verify_release(root, directory):
         raise ValueError('Invalid release identity/classification')
     source = archive_files(directory / f'turaco-insurance-{VERSION}-source.tar.gz')
     tracked = git(root, 'ls-tree', '-r', '--name-only', '-z', commit).decode().strip('\0').split('\0')
-    expected_source = git_archive_files(root, commit)
-    if set(source) != {'turaco-insurance/' + name for name in tracked} or set(source) != set(expected_source):
+    if set(source) != {'turaco-insurance/' + name for name in tracked}:
         raise ValueError('Source inventory differs from the named commit')
-    for name, content in expected_source.items():
-        if source[name] != content:
+    for name in tracked:
+        if source['turaco-insurance/' + name] != git(root, 'show', commit + ':' + name):
             raise ValueError(f'Source contents differ from the named commit: {name}')
     ui = archive_files(directory / f'claims-dashboard-{VERSION}.tar.gz')
     if 'claims-dashboard/index.html' not in ui or not any('/assets/' in name for name in ui):
