@@ -40,9 +40,9 @@ Cloudflare Workers Free serves the hub and gateway within its daily quotas. GitH
 
 The Codespace base image includes Python for startup scripts. The cloud Compose override uses host networking for Python image builds: a wheel download succeeded from the workspace and a host-network container but timed out during TLS negotiation through the nested Docker bridge. Runtime service networking remains isolated. Services restart with the Docker daemon when the workspace resumes.
 
-The Cloudflare gateway sets the [documented development-tunnel header](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/security) for its configured Codespace so browser requests reach the app rather than a development-port notice. This does not grant private-port access; the app still checks its own bearer tokens and roles.
+The Cloudflare gateway sets the [documented development-tunnel header](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/security) for its configured Codespace so browser requests reach the app rather than a development-port notice. The dashboard's 5173 port is public so Cloudflare's Worker can reach it; Nginx exposes the workspace and its token-authenticated API routes, not the database, Keycloak administration, Python or provider simulator ports. The Codespace URL is therefore also reachable directly. Use the Cloudflare hub for the presentation, and remember that the public fixture credentials control synthetic data only.
 
-Only the dashboard gateway is forwarded. PostgreSQL, Keycloak administration, Python and simulator ports are not exposed as presentation links. No private environment files, generated service secrets, database backups or access tokens are published. Public reference source, synthetic screenshots and verified release binaries are the presentation artifacts.
+Only the dashboard gateway is forwarded. PostgreSQL, Keycloak administration, Python and simulator ports remain private and are not exposed as presentation links. No private environment files, generated service secrets, database backups or access tokens are published. Public reference source, synthetic screenshots and verified release binaries are the presentation artifacts.
 
 ## Cloud operator handoff
 
