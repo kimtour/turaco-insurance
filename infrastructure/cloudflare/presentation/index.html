@@ -2,45 +2,191 @@
   <div>
     <p class="kicker">Engineering interview / Hospital Cash</p>
     <h1>Insurance claims reference</h1>
-    <p class="summary">A customer reports a hospital stay. An officer checks the details, a reviewer records a recommendation, and an approver authorizes a simulated benefit. The system keeps the evidence and decision history.</p>
-    <a class="workspace-link" href="/workspace/">Open the live claims workspace ↗</a>
-    <p class="small">Independent project using invented policy terms and customers. No real payments or messages.</p>
+    <p class="summary">
+      A customer reports a hospital stay. An officer checks the details, a
+      reviewer records a recommendation, and an approver authorizes a simulated
+      benefit. The system keeps the evidence and decision history.
+    </p>
+    <a class="workspace-link" href="/workspace/"
+      >Open the live claims workspace ↗</a
+    >
+    <p class="small">
+      Independent project using invented policy terms and customers. No real
+      payments or messages.
+    </p>
   </div>
   <aside class="launch">
     <h2>Before presenting</h2>
-    <ol><li>Resume the Codespace.</li><li>Wait for the gateway to respond.</li><li>Open the workspace and sign in.</li></ol>
-    <a id="start-workspace" href="https://github.com/codespaces">Start cloud workspace ↗</a>
+    <ol>
+      <li>Resume the Codespace.</li>
+      <li>Wait for the gateway to respond.</li>
+      <li>Open the workspace and sign in.</li>
+    </ol>
+    <a id="start-workspace" href="https://github.com/codespaces"
+      >Start cloud workspace ↗</a
+    >
     <button id="check-status">Check demo status</button>
     <p id="demo-status" role="status">Readiness has not been checked.</p>
-    <p class="small">Account <code>approver</code><br>Fixture password <code>local-demo-only</code></p>
-    <p class="small">The workspace sleeps after 30 minutes of inactivity. Resume it before the interview. The documents on this page remain available.</p>
+    <p class="small">
+      Account <code>approver</code><br />Fixture password
+      <code>local-demo-only</code>
+    </p>
+    <p class="small">
+      The workspace sleeps after 30 minutes of inactivity. Resume it before the
+      interview. The documents on this page remain available.
+    </p>
   </aside>
 </section>
 <section class="brief">
   <h2>What runs where</h2>
   <div>
-    <dl class="facts"><div><dt>Presentation</dt><dd>Cloudflare Workers Free hosts the hub, documents and release files. It forwards the live demo over HTTPS.</dd></div><div><dt>Application</dt><dd>The existing React, Java API, PostgreSQL, Keycloak and Python services run in Docker inside GitHub Codespaces.</dd></div><div><dt>External services</dt><dd>Provider, channel, payment and queue simulators. Model adapters are implemented; the demo uses deterministic text fixtures.</dd></div><div><dt>Cost limit</dt><dd>GitHub's included compute and storage allowance with the owner's confirmed $0 budget and usage blocking. No always-on availability guarantee.</dd></div></dl>
-    <p><a href="/documents/docs/architecture.html">Architecture</a> · <a href="/documents/docs/threat-model.html">Threat model</a> · <a href="/documents/docs/api-contracts.html">API contracts</a></p>
+    <dl class="facts">
+      <div>
+        <dt>Presentation</dt>
+        <dd>
+          Cloudflare Workers Free hosts the hub, documents and release files. It
+          forwards the live demo over HTTPS.
+        </dd>
+      </div>
+      <div>
+        <dt>Application</dt>
+        <dd>
+          The existing React, Java API, PostgreSQL, Keycloak and Python services
+          run in Docker inside GitHub Codespaces.
+        </dd>
+      </div>
+      <div>
+        <dt>External services</dt>
+        <dd>
+          Provider, channel, payment and queue simulators. Model adapters are
+          implemented; the demo uses deterministic text fixtures.
+        </dd>
+      </div>
+      <div>
+        <dt>Cost limit</dt>
+        <dd>
+          GitHub's included compute and storage allowance with the owner's
+          confirmed $0 budget and usage blocking. No always-on availability
+          guarantee.
+        </dd>
+      </div>
+    </dl>
+    <p>
+      <a href="/documents/docs/architecture.html">Architecture</a> ·
+      <a href="/documents/docs/threat-model.html">Threat model</a> ·
+      <a href="/documents/docs/api-contracts.html">API contracts</a>
+    </p>
   </div>
 </section>
 <section class="brief">
   <h2>Demo sequence</h2>
-  <div><ol class="sequence"><li><strong>Create and confirm an intake.</strong> Use the sample hospital stay, record confirmation and assisted identity/payee verification.</li><li><strong>Record the decision.</strong> Submit, recommend approval and reserve the benefit. Three covered nights produce a simulated KES 4,500 under the invented policy.</li><li><strong>Show an uncertain payout.</strong> Create an UNKNOWN outcome. Record a separate mock receipt and reconcile. Show that the original attempt was preserved.</li><li><strong>Inspect a correction.</strong> Request more information, change a field, then confirm and resubmit. Conflicting evidence needs a reviewed matching replacement.</li></ol><a href="/documents/docs/cloud-presentation.html">Full interview guide and questions →</a></div>
+  <div>
+    <ol class="sequence">
+      <li>
+        <strong>Create and confirm an intake.</strong> Use the sample hospital
+        stay, record confirmation and assisted identity/payee verification.
+      </li>
+      <li>
+        <strong>Record the decision.</strong> Submit, recommend approval and
+        reserve the benefit. Three covered nights produce a simulated KES 4,500
+        under the invented policy.
+      </li>
+      <li>
+        <strong>Show an uncertain payout.</strong> Create an UNKNOWN outcome.
+        Record a separate mock receipt and reconcile. Show that the original
+        attempt was preserved.
+      </li>
+      <li>
+        <strong>Inspect a correction.</strong> Request more information, change
+        a field, then confirm and resubmit. Conflicting evidence needs a
+        reviewed matching replacement.
+      </li>
+    </ol>
+    <a href="/documents/docs/cloud-presentation.html"
+      >Full interview guide and questions →</a
+    >
+  </div>
 </section>
 <section class="brief">
   <h2>Verification</h2>
-  <div><p>The reference candidate passed 23 Java tests, 17 Python tests and eight release-tool tests. All five jobs in the linked run passed, including Docker and Kubernetes checks.</p><ul class="resources"><li><a href="https://github.com/kimtour/turaco-insurance/actions/runs/38853857653">Reference CI run</a><span>Tests, scans and release packaging</span></li><li><a href="https://github.com/kimtour/turaco-insurance/actions/workflows/cloud-presentation.yml">Cloud deployment checks</a><span>Gateway checks and the real Docker stack</span></li><li><a href="/documents/docs/decisions/RELEASE-0.2.0-run-17-verification.json">Release provenance</a><span>Payload checksums and 111 source files</span></li><li><a href="/documents/docs/decisions/EXTRACTION-run-17-evaluation.json">Extraction regression report</a><span>Four synthetic fixtures, not language certification</span></li><li><a href="/documents/docs/decisions/SDLC-status.html">Implementation status</a><span>Completed scope and remaining production gates</span></li></ul></div>
+  <div>
+    <p>
+      The reference candidate passed 23 Java tests, 17 Python tests and eight
+      release-tool tests. All five jobs in the linked run passed, including
+      Docker and Kubernetes checks.
+    </p>
+    <ul class="resources">
+      <li>
+        <a
+          href="https://github.com/kimtour/turaco-insurance/actions/runs/38853857653"
+          >Reference CI run</a
+        ><span>Tests, scans and release packaging</span>
+      </li>
+      <li>
+        <a
+          href="https://github.com/kimtour/turaco-insurance/actions/workflows/cloud-presentation.yml"
+          >Cloud deployment checks</a
+        ><span>Gateway checks and the real Docker stack</span>
+      </li>
+      <li>
+        <a
+          href="/documents/docs/decisions/RELEASE-0.2.0-run-17-verification.json"
+          >Release provenance</a
+        ><span>Payload checksums and 111 source files</span>
+      </li>
+      <li>
+        <a href="/documents/docs/decisions/EXTRACTION-run-17-evaluation.json"
+          >Extraction regression report</a
+        ><span>Four synthetic fixtures, not language certification</span>
+      </li>
+      <li>
+        <a href="/documents/docs/decisions/SDLC-status.html"
+          >Implementation status</a
+        ><span>Completed scope and remaining production gates</span>
+      </li>
+    </ul>
+  </div>
 </section>
 <section class="brief">
   <h2>Source and handoff</h2>
-  <div><ul class="resources"><li><a href="https://github.com/kimtour/turaco-insurance">Public repository</a><span>Source, history and workflows</span></li><li><a href="/library/">Document library</a><span>Design, decisions, evaluation and operation</span></li><li><a href="/handoff/">AI handoff</a><span>Cloud setup, verification and scope</span></li></ul></div>
+  <div>
+    <ul class="resources">
+      <li>
+        <a href="https://github.com/kimtour/turaco-insurance"
+          >Public repository</a
+        ><span>Source, history and workflows</span>
+      </li>
+      <li>
+        <a href="/library/">Document library</a
+        ><span>Design, decisions, evaluation and operation</span>
+      </li>
+      <li>
+        <a href="/handoff/">AI handoff</a
+        ><span>Cloud setup, verification and scope</span>
+      </li>
+    </ul>
+  </div>
 </section>
 <section class="brief">
   <h2>Release 0.2.0</h2>
-  <div><p>These files belong to the commit named in the release manifest. The cloud deployment changes are tracked separately in the repository.</p><div class="link-list">{{releaseLinks}}</div></div>
+  <div>
+    <p>
+      These files belong to the commit named in the release manifest. The cloud
+      deployment changes are tracked separately in the repository.
+    </p>
+    <div class="link-list">{{releaseLinks}}</div>
+  </div>
 </section>
 <section class="brief limitations">
   <h2>Production gaps</h2>
-  <div><p>Real identity and payee enrollment, official product terms, Meta approvals, representative language/media evaluation, privacy and country approvals, production retention, and real provider/payment contracts remain external work. Speech and OCR are unsupported or human-assisted. This deployment is for synthetic demonstrations.</p></div>
+  <div>
+    <p>
+      Real identity and payee enrollment, official product terms, Meta
+      approvals, representative language/media evaluation, privacy and country
+      approvals, production retention, and real provider/payment contracts
+      remain external work. Speech and OCR are unsupported or human-assisted.
+      This deployment is for synthetic demonstrations.
+    </p>
+  </div>
 </section>
 <script src="/presentation.js" defer></script>

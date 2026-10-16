@@ -2,8 +2,12 @@ services:
   postgres:
     restart: unless-stopped
   ai-service:
+    build:
+      network: host
     restart: unless-stopped
   provider-simulator:
+    build:
+      network: host
     restart: unless-stopped
   keycloak:
     restart: unless-stopped

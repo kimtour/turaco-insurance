@@ -38,6 +38,8 @@ The Cloudflare presentation hub provides the live workspace, this guide, archite
 
 Cloudflare Workers Free serves the hub and gateway within its daily quotas. GitHub personal accounts include a monthly Codespaces compute/storage allowance. This is limited free allowance, not unlimited always-on hosting. Keep a zero-spend budget with usage blocking enabled in GitHub billing; no paid plan is required by this deployment. Stop idle workspaces and monitor storage as well as compute. The deployment does not change billing plans or remove spending limits.
 
+The Codespace base image includes Python for startup scripts. The cloud Compose override uses host networking for Python image builds: a wheel download succeeded from the workspace and a host-network container but timed out during TLS negotiation through the nested Docker bridge. Runtime service networking remains isolated. Services restart with the Docker daemon when the workspace resumes.
+
 Only the dashboard gateway is forwarded. PostgreSQL, Keycloak administration, Python and simulator ports are not exposed as presentation links. No private environment files, generated service secrets, database backups or access tokens are published. Public reference source, synthetic screenshots and verified release binaries are the presentation artifacts.
 
 ## Cloud operator handoff
