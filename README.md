@@ -87,6 +87,7 @@ python3 scripts/verify-release.py --directory release/0.2.0
 ```
 
 The backup rehearsal only accepts named local synthetic databases, restores into a newly created disposable database, validates it, then removes that restored copy. CI exercises Testcontainers, Compose, application-image scanning and an isolated kind deployment before packaging a release candidate. It does not publish or deploy to AWS automatically.
+The source package preserves raw Git blob bytes and the verifier checks every file against the manifest's commit, independent of checkout line-ending filters. The packager still requires a clean worktree.
 
 ## Optional real-model adapters
 
