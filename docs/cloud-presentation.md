@@ -9,7 +9,7 @@ The Cloudflare presentation hub provides the live workspace, this guide, archite
 ## Before the interview
 
 1. Open **Start cloud workspace** from the hub and sign into GitHub as its owner. Resume the existing Codespace; do not create another for every presentation.
-2. Allow startup to complete, then use **Check demo status** in the hub. Green means the API is responding through the cloud gateway.
+2. Allow startup to complete, then use **Check demo status** in the hub. Green means the API is responding through the cloud gateway. If the hub still reports a sleeping workspace while the Codespace is running, its dashboard port 5173 must be public for Cloudflare to reach it.
 3. Open **Live claims workspace**, choose Approver, and use the published fixture password `local-demo-only`. These accounts only control invented demonstration data.
 4. Keep the Codespace browser tab open during the presentation. A sleeping workspace must be resumed from GitHub. The hub, source and evidence remain accessible while compute sleeps.
 5. Stop the Codespace after the presentation from GitHub's Codespaces page. Its database volumes remain in that Codespace until it is deleted or expires.
@@ -20,7 +20,7 @@ The Cloudflare presentation hub provides the live workspace, this guide, archite
 
 **Architecture · 1 minute.** React → Java API → PostgreSQL, with Keycloak roles. Python handles schema-validated extraction and durable conversations. Independent local simulators stand in for providers, channels, payouts and queue delivery. Cloudflare fronts the presentation; GitHub hosts the actual compute.
 
-**Happy path · 3 minutes.** Create a sample intake. Enter a synthetic reference, record customer confirmation, then record assisted identity/payee verification. Submit, recommend approval, approve/reserve the deterministic benefit, then simulate a confirmed payout. Three covered nights produce KES 4,500 under the invented policy. Show the audit trail.
+**Happy path · 3 minutes.** Create a sample intake. For each action, enter a synthetic evidence reference in the required field; the field clears after a successful action. Record customer confirmation, then assisted identity/payee verification. Submit, recommend approval, approve/reserve the deterministic benefit, then simulate a confirmed payout. Three covered nights produce KES 4,500 under the invented policy. Show the audit trail.
 
 **Failure and recovery · 2 minutes.** On a second approved claim, expand recovery tools and simulate an UNKNOWN payout. Another attempt is blocked. Record a separate mock provider receipt, then reconcile. For evidence review, attach conflicting synthetic text, attach matching text, and record the reviewed replacement before approval. Corrections reopen confirmation.
 

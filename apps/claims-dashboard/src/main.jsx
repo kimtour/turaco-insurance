@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import PlatformTools from './PlatformTools';
+import {evidenceReferenceError} from './action-validation.js';
 import './styles.css';
 
 const HOSTED = import.meta.env.VITE_PRESENTATION_MODE === 'true';
@@ -30,8 +31,10 @@ function App() {
   const [selected,setSelected] = useState(null);
   const [audit,setAudit] = useState([]);
   const [error,setError] = useState('');
+  const [actionError,setActionError] = useState('');
   const [busy,setBusy] = useState(false);
   const [reference,setReference] = useState('');
+  const referenceInput = useRef(null);
   const [page,setPage] = useState(0);
   const [catalog,setCatalog] = useState(null);
   const [loading,setLoading] = useState(false);
@@ -54,6 +57,7 @@ function App() {
   }
   async function load(id=selected?.id, requestedPage=page) {
     const epoch=++selectionEpoch.current;setLoading(true);
+    setActionError('');
     try {
     const rows = await api(`/claims?page=${requestedPage}&size=10`);
     if(epoch!==selectionEpoch.current)return;
@@ -70,7 +74,7 @@ function App() {
   },[token,page]);
   function signOut() {
     session.current='';selectionEpoch.current++;
-    setToken('');setClaims([]);setSelected(null);setAudit([]);setCatalog(null);setPage(0);setReference('');setBusy(false);setError('');
+    setToken('');setClaims([]);setSelected(null);setAudit([]);setCatalog(null);setPage(0);setReference('');setBusy(false);setError('');setActionError('');
   }
   async function login(event) {
     event.preventDefault();setBusy(true);setError('');
@@ -82,17 +86,18 @@ function App() {
       const next=(await response.json()).access_token;session.current=next;setToken(next);setPassword('');
     } catch(e) {setError(e.message);} finally {setBusy(false);}
   }
-  async function select(claim) {const epoch=++selectionEpoch.current;setSelected(claim);setReference('');setError('');setAudit([]);try {const events=await api(`/claims/${claim.id}/audit`);if(epoch===selectionEpoch.current)setAudit(events);} catch(e){if(epoch===selectionEpoch.current)setError(e.message);}}
+  async function select(claim) {const epoch=++selectionEpoch.current;setSelected(claim);setReference('');setError('');setActionError('');setAudit([]);try {const events=await api(`/claims/${claim.id}/audit`);if(epoch===selectionEpoch.current)setAudit(events);} catch(e){if(epoch===selectionEpoch.current)setError(e.message);}}
   async function create() {
     setBusy(true);setError('');
     try {const claim=await api('/claims',sample(),crypto.randomUUID());await load(claim.id,0);}
     catch(e) {setError(e.message);} finally {setBusy(false);}
   }
   async function act(path,body) {
-    if(!reference.trim()) {setError('Add an evidence reference before recording an action.');return;}
-    setBusy(true);setError('');
+    const validationError = evidenceReferenceError(reference);
+    if(validationError) {setActionError(validationError);referenceInput.current?.focus();return;}
+    setBusy(true);setActionError('');
     try {await api(`/claims/${selected.id}/${path}`,body);await load();setReference('');}
-    catch(e) {setError(e.message);} finally {setBusy(false);}
+    catch(e) {setActionError(e.message);} finally {setBusy(false);}
   }
   const e = selected?.extraction;
   const actionable = selected && !['APPROVED','REJECTED','CLOSED'].includes(selected.provider_claim_status);
@@ -134,7 +139,7 @@ function App() {
           <div className="fields">{[['Hospital','hospital_name'],['Incident','incident_type_code'],['Admission','admission_date'],['Discharge','discharge_date']].map(([label,name])=><div key={name}><label>{label}</label><strong>{name==='incident_type_code'?pretty(e[name].value):e[name].value??'Needs information'}</strong><small className={e[name].status==='confirmed'?'confirmed':''}>{e[name].status==='confirmed'?'✓ Confirmed':'○ '+pretty(e[name].status)}</small>{e[name].evidence_span && <blockquote>{e[name].evidence_span}</blockquote>}</div>)}</div>
           {selected.amount && <div className="benefit"><div><small>DETERMINISTIC BENEFIT</small><strong>{selected.currency} {Number(selected.amount).toLocaleString('en-KE',{minimumFractionDigits:2})}</strong></div><span>Calculated by the claims service<br/>Synthetic Hospital Cash terms</span></div>}
           <div className="checks"><span className={selected.claimant_verified?'checked':''}>{selected.claimant_verified?'✓':'○'} Claimant verified</span><span className={selected.payee_verified?'checked':''}>{selected.payee_verified?'✓':'○'} Payee verified</span></div>
-          <div className="action-area"><label htmlFor="reference">Evidence reference</label><input id="reference" disabled={busy} value={reference} onChange={e=>setReference(e.target.value)} maxLength={200} placeholder="e.g. synthetic-assisted-review-001"/><small>Record an evidence ID only. Keep medical details out of this field.</small>
+          <div className="action-area"><label htmlFor="reference">Evidence reference (required)</label><input ref={referenceInput} id="reference" required aria-describedby="reference-help" disabled={busy} value={reference} onChange={e=>{setReference(e.target.value);setActionError('');}} maxLength={200} placeholder="e.g. synthetic-assisted-review-001"/><small id="reference-help">Required for these actions. Use a synthetic evidence ID only; keep medical details out of this field.</small>
             <div className="actions">
               {can('write') && ['NEEDS_CONFIRMATION','VERIFIED'].includes(selected.intake_status) && <button disabled={busy} onClick={()=>act('confirmations',{fields:['incident_type_code','hospital_name','admission_date','discharge_date'],evidence_reference:reference})}>Record sample confirmation</button>}
               {can('review') && actionable && !selected.payee_verified && <button disabled={busy} onClick={()=>act('verifications',{evidence_reference:reference,payee_verified:true})}>Record assisted verification</button>}
@@ -142,7 +147,8 @@ function App() {
               {can('review') && reviewable && <button disabled={busy} onClick={()=>act('reviews',{decision:'RECOMMEND_APPROVAL',reason_code:'SYNTHETIC_TERMS_MET',evidence_reference:reference})}>Recommend approval</button>}
               {can('approve') && approvable && <button className="primary" disabled={busy} onClick={()=>act('approvals',{evidence_reference:reference})}>Approve & reserve benefit</button>}
               {can('pay') && selected.payout_status==='RESERVED' && <button className="primary" disabled={busy} onClick={()=>act('simulated-payouts',{outcome:'CONFIRMED'})}>Run simulated payout →</button>}
-            </div>{selected.payout_status==='UNKNOWN' && <p className="error">The provider outcome is unknown. Reconciliation is required before any retry.</p>}
+            </div>{actionError && <p role="alert" className="error">{actionError}</p>}
+            {selected.payout_status==='UNKNOWN' && <p className="error">The provider outcome is unknown. Reconciliation is required before any retry.</p>}
             {selected.payout_status==='CONFIRMED' && <p className="completion">✓ Simulated payout confirmed. No money was transferred.</p>}
           </div>
           <div className="section-title">Activity trail <span>{audit.length} recorded events</span></div><ol className="timeline">{audit.slice().reverse().map(event=><li key={event.id}><span className="timeline-dot"/><div><strong>{pretty(event.event_type)}</strong><small>{auditDescription(event)}</small><small>{new Date(event.created_at).toLocaleString('en-KE')} · {event.actor}</small></div></li>)}</ol>
