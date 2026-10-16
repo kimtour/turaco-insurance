@@ -104,16 +104,16 @@ function App() {
       <div className="brand"><span className="brand-icon">t</span> turaco<span className="brand-dot">.</span></div>
       <div className="sidebar-label">CLAIMS WORKSPACE</div>
       <div className="nav-active"><span>▦</span> Hospital Cash <span className="nav-count">{claims.length}</span></div>
-      <div className="sidebar-note"><span className="pulse"/> {HOSTED?'Cloud presentation':'Standalone prototype'}<br/><small>Independent reference implementation</small></div>
+      <div className="sidebar-note">{HOSTED?'Cloud presentation':'Standalone prototype'}<br/><small>Independent reference implementation</small></div>
       <div className="sidebar-bottom"><div className="avatar">{token?username.slice(0,2).toUpperCase():'TC'}</div><div>{token?username:'Local workspace'}<small>Kenya · Synthetic data</small></div></div>
       {token && <button className="sign-out" onClick={signOut}>Sign out</button>}
     </aside>
     <main>
-      <header><span>Claims / <b>Hospital Cash</b></span><span className="environment"><span className="pulse"/> {HOSTED?'CLOUD DEMO':'LOCAL DEMO'}</span></header>
-      <section className="intro"><div><div className="eyebrow">CARE, WITH ACCOUNTABILITY</div><h1>Every claim, accounted for.</h1><p>A clear path from first message to a reviewed decision.</p>{HOSTED&&<p className="cloud-notice"><a href="/">← Presentation hub</a> · Live Java/Python reference stack in GitHub Codespaces · Synthetic inputs only. Source and verification evidence are available in the presentation hub.</p>}</div>
+      <header><span>Claims / <b>Hospital Cash</b></span><span className="environment">{HOSTED?'CLOUD DEMO':'LOCAL DEMO'}</span></header>
+      <section className="intro"><div><div className="eyebrow">KENYA · SYNTHETIC HOSPITAL CASH</div><h1>Hospital Cash claims</h1><p>Review intake details, record a decision and reconcile simulated payouts.</p>{HOSTED&&<p className="cloud-notice"><a href="/">← Presentation hub</a> · Live Java/Python reference stack in GitHub Codespaces · Synthetic inputs only. Source and verification evidence are available in the presentation hub.</p>}</div>
         {token && can('write') && <button className="primary" disabled={busy} onClick={create}>＋ Create sample intake</button>}
       </section>
-      <div className="notice"><span>◈</span><div><strong>A safe place to test the journey.</strong> All customers and policy terms are synthetic. Every payout is simulated.</div><span className="tag">REFERENCE BUILD</span></div>
+      <div className="notice"><span>◈</span><div><strong>Synthetic data only.</strong> All customers and policy terms are synthetic. Every payout is simulated.</div><span className="tag">REFERENCE BUILD</span></div>
       {error && <div role="alert" className="error">{error}</div>}
       {!token ? <section className="login-card"><div className="eyebrow">YOUR LOCAL WORKSPACE</div><h2>Sign in to review claims</h2><p>Use a seeded demo account. Permissions are checked by the claims service.</p><form onSubmit={login}>
         <label>Account<select value={username} onChange={e=>setUsername(e.target.value)}><option value="approver">Approver · Full demo journey</option><option value="reviewer">Reviewer · Review only</option><option value="officer">Claims officer · Intake</option></select></label>
@@ -146,9 +146,9 @@ function App() {
             {selected.payout_status==='CONFIRMED' && <p className="completion">✓ Simulated payout confirmed. No money was transferred.</p>}
           </div>
           <div className="section-title">Activity trail <span>{audit.length} recorded events</span></div><ol className="timeline">{audit.slice().reverse().map(event=><li key={event.id}><span className="timeline-dot"/><div><strong>{pretty(event.event_type)}</strong><small>{auditDescription(event)}</small><small>{new Date(event.created_at).toLocaleString('en-KE')} · {event.actor}</small></div></li>)}</ol>
-        </section> : <section className="panel detail empty"><span>↗</span><h2>A little clarity at every step.</h2><p>Select a claim to see its evidence, decisions and activity trail.</p></section>}
+        </section> : <section className="panel detail empty"><span>↗</span><h2>No claim selected</h2><p>Select a claim to see its evidence, decisions and activity trail.</p></section>}
       </div></>}
-      <footer><span>Turaco Insurance · Independent reference implementation</span><span>Built around human decisions.</span></footer>
+      <footer><span>Turaco Insurance · Independent reference implementation</span><span>Human approval required.</span></footer>
     </main>
   </div>;
 }

@@ -6,6 +6,7 @@ test('backend origin rejects local, credential-bearing and lookalike destination
  for(const url of ['http://a.app.github.dev','https://localhost','https://a.app.github.dev.evil.test','https://user:password@a.app.github.dev','https://a.app.github.dev:8443'])assert.throws(()=>backendURL(url,'/'));
  assert.equal(backendURL(env.BACKEND_ORIGIN,'/workspace/').pathname,'/');
  assert.equal(backendURL(env.BACKEND_ORIGIN,'/api/v1/claims').pathname,'/api/v1/claims');
+ assert.equal(backendURL(env.BACKEND_ORIGIN,'/workspace//evil.test').origin,env.BACKEND_ORIGIN);
 });
 test('cross-site mutation is denied before forwarding',async()=>{
  const r=await handle(new Request('https://presentation.test/api/v1/claims',{method:'POST',headers:{Origin:'https://evil.test'},body:'{}'}),env);assert.equal(r.status,403);
@@ -20,7 +21,7 @@ test('proxy forwards app credentials but never browser cookies',async()=>{
 });
 test('sleeping workspace returns clear error without forwarding identity redirects',async()=>{
  const original=globalThis.fetch;globalThis.fetch=async()=>new Response('private redirect body',{status:302,headers:{Location:'https://github.com/login'}});
- try{const r=await handle(new Request('https://presentation.test/workspace/'),env);assert.equal(r.status,503);assert.match((await r.json()).detail,/sleeping/);assert.equal(r.headers.get('Location'),null);}finally{globalThis.fetch=original;}
+ try{const r=await handle(new Request('https://presentation.test/workspace/'),env);assert.equal(r.status,503);assert.match(await r.text(),/sleeping/);assert.equal(r.headers.get('Location'),null);}finally{globalThis.fetch=original;}
 });
 test('presentation assets work independently of sleeping compute and have security headers',async()=>{
  const r=await worker.fetch(new Request('https://presentation.test/'),{ASSETS:{fetch:async()=>new Response('hub')}});assert.equal(await r.text(),'hub');assert.equal(r.headers.get('X-Content-Type-Options'),'nosniff');assert.match(r.headers.get('Content-Security-Policy'),/frame-ancestors 'none'/);
