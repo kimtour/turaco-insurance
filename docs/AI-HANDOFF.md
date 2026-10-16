@@ -34,6 +34,22 @@ Previously verified: all six synthetic E2E phases; role enforcement; correction 
 
 Release 0.2.0 is the separately verified run-17 candidate at `24935a7ff5d69cb677d0444927970da8a0695218`. It had 23 Java, 17 Python and eight release-tool tests; all 111 packaged source files matched raw Git blobs. Five hosted payload hashes were independently checked. Release files and evidence are available from the hub. Keep this provenance separate from later cloud/UI changes.
 
+## Final interview publication verification
+
+Presentation source commit `56942201ed4380a26d796a3cf84dc1547cac2e39` is pushed.
+Both workflows passed on that commit:
+
+- Cloud presentation: https://github.com/kimtour/turaco-insurance/actions/runs/38884489695
+- Full SDLC, including release packaging and Kubernetes demo: https://github.com/kimtour/turaco-insurance/actions/runs/38884489970
+
+The public Cloudflare authenticated smoke workflow passed again after resume and publication.
+Readiness returned `ready: true`. Hosted PowerPoint SHA-256 matched the committed file:
+`834d3a46aba7eb88d1015165fae34e622446d07b14f2a2e310fb93de2848818c`.
+The nine-slide PowerPoint passed package/layout/import checks and each rendered slide was inspected.
+The browser deck loaded through Cloudflare. Automated browser input was unreliable, so do not
+describe its next-slide control as having passed an interactive browser test.
+A later documentation-only commit records these results; it does not change runtime code.
+
 ## Interview sequence
 
 1. Resume the workspace and check the hub's readiness. Open the browser deck in a separate tab.

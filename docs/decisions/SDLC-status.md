@@ -155,3 +155,12 @@ presenter notes, and a portable Markdown handoff. The handoff is intentionally t
 
 The historical 0.2.0 candidate remains unchanged. These materials do not close the
 external production gates listed above.
+
+Final presentation source `56942201ed4380a26d796a3cf84dc1547cac2e39` also passed both
+[Cloud presentation CI](https://github.com/kimtour/turaco-insurance/actions/runs/38884489695) and
+[full SDLC CI](https://github.com/kimtour/turaco-insurance/actions/runs/38884489970).
+The public Cloudflare authenticated workflow passed after publication; readiness was true.
+Hosted deck and handoff downloads matched their source files. The PowerPoint passed
+package, layout and import validation, and all nine slide renders were inspected.
+The browser deck loaded; automated browser input was unreliable, so interactive
+next-slide navigation is not recorded as a passed browser test.
