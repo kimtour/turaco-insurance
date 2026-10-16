@@ -2,10 +2,12 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 scripts/setup-local.py
-# All compute stays in this Codespace. Only the dashboard port is forwarded.
-if [[ "${1:-}" == "--build" ]]; then
-  docker compose -f compose.yaml -f .devcontainer/compose.cloud.yaml up -d --build
-else
-  docker compose -f compose.yaml -f .devcontainer/compose.cloud.yaml up -d
+compose=(docker compose -f compose.yaml -f .devcontainer/compose.cloud.yaml)
+images=(turaco-insurance-insurance-api:latest turaco-insurance-ai-service:latest turaco-insurance-provider-simulator:latest turaco-insurance-claims-dashboard:latest)
+if [[ "${1:-}" == "--build" ]] || ! docker image inspect "${images[@]}" >/dev/null 2>&1; then
+  mkdir -p .cache
+  "${compose[@]}" build --print > .cache/cloud-bake.json
+  docker buildx bake --file .cache/cloud-bake.json --allow=network.host --load
 fi
+"${compose[@]}" up -d --no-build
 python3 scripts/cloud-demo-check.py --url http://127.0.0.1:5173 --seed

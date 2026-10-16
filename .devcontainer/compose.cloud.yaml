@@ -4,10 +4,12 @@ services:
   ai-service:
     build:
       network: host
+      entitlements: [network.host]
     restart: unless-stopped
   provider-simulator:
     build:
       network: host
+      entitlements: [network.host]
     restart: unless-stopped
   keycloak:
     restart: unless-stopped
