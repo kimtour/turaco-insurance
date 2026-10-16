@@ -18,6 +18,14 @@ For UNKNOWN fake payouts, record a mock provider receipt through `/claims/{id}/m
 
 REQUEST_INFORMATION reopens intake. Corrections create a new extraction version and require confirmation again. Conflicting evidence requires matching replacement evidence and an authorized resolution; quarantine cannot be bypassed. Evidence references/reason codes contain identifiers only, never clinical narratives. Retention timestamps are recorded, but production retention and secure destruction require the approved privacy design before real data.
 
+## Workspace walkthrough (synthetic fixtures)
+
+Sign in at the dashboard with a seeded account. Expand **Intake, evidence & recovery tools** to extract text, continue a saved conversation, attach evidence or reconcile the independent provider simulator. Each mutation locks the other claim controls until it finishes. Switching claims clears the review reference and evidence selection.
+
+For a correction, record **Request more information**, change the unconfirmed fields, then record sample confirmation and resubmit. Load evidence to inspect whether each check uses current facts. Attach matching text and record a reviewed replacement for each unresolved conflict or stale check before recommending approval. A rejection recommendation is followed by **Finalize rejection**; approval reserves the deterministic benefit only after server checks pass.
+
+To rehearse ambiguity, authorize a synthetic claim, choose **Simulate an unknown payout outcome**, record a separate simulator receipt and reconcile it. Verify the activity trail preserves the original attempt. Notification previews show service-window/template and opt-out rules without sending anything. Reviewers can inspect operational health and signed channel receipts; authorized approvers can replay dead letters. Real media parsing remains unsupported; the transcript checkbox explicitly opts into typed synthetic fallback.
+
 ## Backup and rollback
 
 Run `python3 scripts/backup-restore-check.py` only on the named local synthetic database. The check uses pg_dump/pg_restore, creates its own isolated restore target, validates restored data and removes that target. Backup archives remain private under ignored `.cache/verification/`. Keep the local encryption key with protected backups; losing it makes evidence unreadable.

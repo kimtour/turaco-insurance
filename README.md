@@ -51,7 +51,7 @@ The setup script generates private, ignored `.env` secrets and preserves existin
 | E · Payment | Deterministic benefit, human authorization, unique obligations, stable-key fake attempts, UNKNOWN retry block and receipt-based reconciliation |
 | F · Operations and release | Background local outbox/queue simulator, bounded retries/DLQ/replay, scoped operational metrics, Prometheus endpoint, optional redacted Langfuse traces, SBOM/security checks, backup/restore rehearsal, load smoke, CI, release packaging and synthetic Kubernetes bundle |
 
-The UI includes text extraction, conversations, evidence checks, review flags, operational health and recovery tools. Advanced signed-channel/provider scenarios are exercised by the full-platform demo and documented APIs. Templates only produce previews; no message is sent.
+The UI includes text extraction, saved conversations, unconfirmed corrections, requests for information, approval/rejection recommendations, and final rejection. Evidence tools distinguish current checks from stale ones and record reviewed replacements. Operators can submit to the provider simulator, recover ambiguous fake payouts using separate receipts, process signed channel receipts, preview notification rules, and authorize dead-letter replay. Review references and server permissions remain required. Provider status changes and signed callback scenarios are exercised by the independent simulator harness and documented APIs. Templates only produce previews; no message is sent.
 
 Demo Hospital Cash terms: KES 1,500 per night, maximum 30 nights, 30-day waiting period, 2026 coverage. A three-night fixture pays simulated KES 4,500. These are invented terms, not Turaco policy terms. Java recomputes benefit amounts and ignores model-derived nights.
 
@@ -67,7 +67,7 @@ cd services/insurance-api
 uv sync --frozen
 uv run --frozen pytest -q
 uv run --frozen pip-audit
-uv run --frozen python -m app.evaluation ../../datasets/eval/hospital-cash.json
+uv run --frozen python -m app.evaluation ../../datasets/eval/hospital-cash.json --check
 
 # From apps/claims-dashboard:
 npm ci

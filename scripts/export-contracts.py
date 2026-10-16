@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """Export contracts from authenticated running services; never print tokens."""
 import json
+import os
 from pathlib import Path
 import demo
 
 ROOT=Path(__file__).resolve().parents[1]
 if __name__=="__main__":
     token=demo.login("approver")
-    targets={"insurance-api.json":demo.API+"/v3/api-docs","ai-service.json":demo.AI+"/openapi.json"}
+    targets={"insurance-api.json":demo.API+"/v3/api-docs","ai-service.json":demo.AI+"/openapi.json",
+             "provider-simulator.json":os.environ.get("SIMULATOR_URL","http://localhost:9000")+"/openapi.json"}
     for name,url in targets.items():
         specification=demo.request(url,token=token if name.startswith("insurance") else None)
         if not specification.get("paths"):raise RuntimeError("Contract export contained no API routes")

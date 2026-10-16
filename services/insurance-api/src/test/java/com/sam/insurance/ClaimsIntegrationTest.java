@@ -599,10 +599,17 @@ class ClaimsIntegrationTest {
       org.mockito.Mockito.when(external.extract(input.text(), input.language()))
           .thenThrow(new org.springframework.web.client.RestClientException("synthetic outage"));
       assertEquals(ids.iterator().next(), platform.fromText(scope, key, input).id());
-      org.mockito.Mockito.verify(external, org.mockito.Mockito.times(1)).extract(input.text(), input.language());
-      assertThrows(org.springframework.web.server.ResponseStatusException.class,
-          () -> platform.fromText(scope, key, new PlatformContracts.TextIntake(LocalSeed.POLICY, "Changed request", "en-KE")));
-      assertThrows(org.springframework.web.server.ResponseStatusException.class,
+      org.mockito.Mockito.verify(external, org.mockito.Mockito.times(1))
+          .extract(input.text(), input.language());
+      assertThrows(
+          org.springframework.web.server.ResponseStatusException.class,
+          () ->
+              platform.fromText(
+                  scope,
+                  key,
+                  new PlatformContracts.TextIntake(LocalSeed.POLICY, "Changed request", "en-KE")));
+      assertThrows(
+          org.springframework.web.server.ResponseStatusException.class,
           () -> platform.fromText(scope, "invalid key", input));
     } finally {
       pool.shutdownNow();
@@ -613,47 +620,113 @@ class ClaimsIntegrationTest {
   void requestedInformationMustBeResubmittedBeforeApproval() {
     UUID id = ready();
     service.review(scope, id, new Review("REQUEST_INFORMATION", "SYNTHETIC_RECHECK", "synthetic"));
-    assertThrows(org.springframework.web.server.ResponseStatusException.class,
-        () -> service.review(scope, id, new Review("RECOMMEND_APPROVAL", "SYNTHETIC_RECHECK", "synthetic")));
-    assertThrows(org.springframework.web.server.ResponseStatusException.class,
+    assertThrows(
+        org.springframework.web.server.ResponseStatusException.class,
+        () ->
+            service.review(
+                scope, id, new Review("RECOMMEND_APPROVAL", "SYNTHETIC_RECHECK", "synthetic")));
+    assertThrows(
+        org.springframework.web.server.ResponseStatusException.class,
         () -> service.approve(scope, id, new Approval("synthetic")));
     assertNull(service.get(scope, id).obligation_id());
-    service.confirm(scope, id, new Confirmation(ClaimsService.CRITICAL, "synthetic-reconfirmation"));
+    service.confirm(
+        scope, id, new Confirmation(ClaimsService.CRITICAL, "synthetic-reconfirmation"));
     service.submit(scope, id);
     service.review(scope, id, new Review("RECOMMEND_APPROVAL", "SYNTHETIC_RECHECK", "synthetic"));
     var approved = service.approve(scope, id, new Approval("synthetic"));
     assertNotNull(approved.obligation_id());
-    assertThrows(org.springframework.web.server.ResponseStatusException.class,
-        () -> service.review(scope, id, new Review("REQUEST_INFORMATION", "SYNTHETIC_RECHECK", "synthetic")));
+    assertThrows(
+        org.springframework.web.server.ResponseStatusException.class,
+        () ->
+            service.review(
+                scope, id, new Review("REQUEST_INFORMATION", "SYNTHETIC_RECHECK", "synthetic")));
     assertEquals(approved.obligation_id(), service.get(scope, id).obligation_id());
   }
 
   @Test
   void correctedFactsRequireCurrentEvidenceWithoutRewritingEarlierResolutions() {
     UUID id = ready();
-    org.mockito.Mockito.when(external.document(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any()))
+    org.mockito.Mockito.when(
+            external.document(
+                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any()))
         .thenReturn(Map.of("status", "CONFLICT", "engine", "synthetic-text-parser"));
-    UUID bad = (UUID) platform.evidence(scope, id, new PlatformContracts.Evidence("Synthetic conflict")).get("id");
-    org.mockito.Mockito.when(external.document(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any()))
+    UUID bad =
+        (UUID)
+            platform
+                .evidence(scope, id, new PlatformContracts.Evidence("Synthetic conflict"))
+                .get("id");
+    org.mockito.Mockito.when(
+            external.document(
+                org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any()))
         .thenReturn(Map.of("status", "MATCH", "engine", "synthetic-text-parser"));
-    UUID oldMatch = (UUID) platform.evidence(scope, id, new PlatformContracts.Evidence("Synthetic old match")).get("id");
-    platform.resolveEvidence(scope, id, bad, new PlatformContracts.Resolution(oldMatch, "synthetic-first-review"));
-    service.review(scope, id, new Review("REQUEST_INFORMATION", "SYNTHETIC_CORRECTION", "synthetic"));
+    UUID oldMatch =
+        (UUID)
+            platform
+                .evidence(scope, id, new PlatformContracts.Evidence("Synthetic old match"))
+                .get("id");
+    platform.resolveEvidence(
+        scope, id, bad, new PlatformContracts.Resolution(oldMatch, "synthetic-first-review"));
+    var initialEvidence = platform.evidenceList(scope, id);
+    assertTrue(
+        initialEvidence.stream()
+            .anyMatch(
+                row -> bad.equals(row.get("id")) && Boolean.TRUE.equals(row.get("resolved"))));
+    service.review(
+        scope, id, new Review("REQUEST_INFORMATION", "SYNTHETIC_CORRECTION", "synthetic"));
     Extraction old = sample();
-    Extraction corrected = new Extraction("2", old.language(), old.incident_type_code(), field("Corrected Synthetic Hospital"),
-        old.admission_date(), old.discharge_date(), old.hospital_nights(), true);
-    platform.correct(scope, id, new PlatformContracts.Correction(corrected, "synthetic-correction"));
-    service.confirm(scope, id, new Confirmation(ClaimsService.CRITICAL, "synthetic-reconfirmation"));
+    Extraction corrected =
+        new Extraction(
+            "2",
+            old.language(),
+            old.incident_type_code(),
+            field("Corrected Synthetic Hospital"),
+            old.admission_date(),
+            old.discharge_date(),
+            old.hospital_nights(),
+            true);
+    platform.correct(
+        scope, id, new PlatformContracts.Correction(corrected, "synthetic-correction"));
+    for (var row : platform.evidenceList(scope, id)) {
+      assertEquals(false, row.get("facts_current"));
+      assertEquals(false, row.get("resolved"));
+      assertFalse(row.containsKey("extraction_digest"));
+    }
+    service.confirm(
+        scope, id, new Confirmation(ClaimsService.CRITICAL, "synthetic-reconfirmation"));
     service.submit(scope, id);
     service.review(scope, id, new Review("RECOMMEND_APPROVAL", "SYNTHETIC_RECHECK", "synthetic"));
-    assertThrows(org.springframework.web.server.ResponseStatusException.class,
+    assertThrows(
+        org.springframework.web.server.ResponseStatusException.class,
         () -> service.approve(scope, id, new Approval("synthetic")));
-    assertThrows(org.springframework.web.server.ResponseStatusException.class,
-        () -> platform.resolveEvidence(scope, id, bad, new PlatformContracts.Resolution(oldMatch, "synthetic-stale")));
-    UUID current = (UUID) platform.evidence(scope, id, new PlatformContracts.Evidence("Synthetic current match")).get("id");
-    platform.resolveEvidence(scope, id, bad, new PlatformContracts.Resolution(current, "synthetic-new-review"));
-    platform.resolveEvidence(scope, id, oldMatch, new PlatformContracts.Resolution(current, "synthetic-new-review"));
-    assertEquals(2, jdbc.queryForObject("SELECT count(*) FROM evidence_resolution WHERE evidence_id=?", Integer.class, bad));
+    assertThrows(
+        org.springframework.web.server.ResponseStatusException.class,
+        () ->
+            platform.resolveEvidence(
+                scope, id, bad, new PlatformContracts.Resolution(oldMatch, "synthetic-stale")));
+    UUID current =
+        (UUID)
+            platform
+                .evidence(scope, id, new PlatformContracts.Evidence("Synthetic current match"))
+                .get("id");
+    platform.resolveEvidence(
+        scope, id, bad, new PlatformContracts.Resolution(current, "synthetic-new-review"));
+    platform.resolveEvidence(
+        scope, id, oldMatch, new PlatformContracts.Resolution(current, "synthetic-new-review"));
+    var reviewedEvidence = platform.evidenceList(scope, id);
+    assertTrue(
+        reviewedEvidence.stream()
+            .filter(row -> !current.equals(row.get("id")))
+            .allMatch(row -> Boolean.TRUE.equals(row.get("resolved"))));
+    assertTrue(
+        reviewedEvidence.stream()
+            .anyMatch(
+                row ->
+                    current.equals(row.get("id"))
+                        && Boolean.TRUE.equals(row.get("facts_current"))));
+    assertEquals(
+        2,
+        jdbc.queryForObject(
+            "SELECT count(*) FROM evidence_resolution WHERE evidence_id=?", Integer.class, bad));
     assertNotNull(service.approve(scope, id, new Approval("synthetic-current")).obligation_id());
   }
 

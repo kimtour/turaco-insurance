@@ -40,6 +40,14 @@ jobs:
         run: uv sync --frozen
       - working-directory: services/ai-service
         run: uv run --frozen pytest -q
+      - name: Synthetic multilingual regression gate
+        working-directory: services/ai-service
+        run: uv run --frozen python -m app.evaluation ../../datasets/eval/hospital-cash.json --check > /tmp/turaco-evaluation.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-extraction-evaluation
+          path: /tmp/turaco-evaluation.json
       - working-directory: services/ai-service
         run: uv run --frozen pip-audit
   dashboard:

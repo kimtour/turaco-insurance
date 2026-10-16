@@ -35,22 +35,31 @@ public class PlatformService {
   public Contracts.ClaimView fromText(Scope s, String key, TextIntake input) {
     claims.lockCreation(s, key);
     String digest = EncryptedPayloads.digest(db.json(input));
-    var existing = db.rows(s,
-        "SELECT id,text_request_digest FROM claim WHERE tenant_id=? AND country_code=? AND client_key=?", key);
+    var existing =
+        db.rows(
+            s,
+            "SELECT id,text_request_digest FROM claim WHERE tenant_id=? AND country_code=? AND"
+                + " client_key=?",
+            key);
     if (!existing.isEmpty() && existing.getFirst().get("text_request_digest") != null) {
-      require(digest.equals(existing.getFirst().get("text_request_digest")),
+      require(
+          digest.equals(existing.getFirst().get("text_request_digest")),
           "Idempotency key was already used for a different text request");
       return claims.get(s, (UUID) existing.getFirst().get("id"));
     }
     try {
-      var claim = claims.create(
+      var claim =
+          claims.create(
+              s,
+              key,
+              new Contracts.CreateClaim(
+                  input.policy_id(), external.extract(input.text(), input.language())));
+      db.update(
           s,
-          key,
-          new Contracts.CreateClaim(
-              input.policy_id(), external.extract(input.text(), input.language())));
-      db.update(s, "UPDATE claim SET text_request_digest=v.digest FROM"
-          + " (SELECT ?::uuid t,?::text c,?::text digest)v WHERE tenant_id=v.t AND country_code=v.c AND id=?",
-          digest, claim.id());
+          "UPDATE claim SET text_request_digest=v.digest FROM (SELECT ?::uuid t,?::text c,?::text"
+              + " digest)v WHERE tenant_id=v.t AND country_code=v.c AND id=?",
+          digest,
+          claim.id());
       return claim;
     } catch (org.springframework.web.client.RestClientException ex) {
       throw new ResponseStatusException(
@@ -121,7 +130,8 @@ public class PlatformService {
         ciphertext,
         EncryptedPayloads.digest(input.synthetic_text()),
         status,
-        s.actor(), claims.evidenceDigest(claims.extraction(row)));
+        s.actor(),
+        claims.evidenceDigest(claims.extraction(row)));
     db.audit(
         s,
         id,
@@ -134,13 +144,35 @@ public class PlatformService {
   }
 
   public List<Map<String, Object>> evidenceList(Scope s, UUID id) {
-    claims.get(s, id);
-    return db.rows(
-        s,
-        "SELECT id,media_type,digest,verification_status,retention_until::text,created_at::text"
-            + " FROM claim_evidence WHERE tenant_id=? AND country_code=? AND claim_id=? ORDER BY"
-            + " created_at",
-        id);
+    String current = claims.evidenceDigest(claims.get(s, id).extraction());
+    Set<UUID> resolved = new HashSet<>();
+    for (var row :
+        db.rows(
+            s,
+            "SELECT r.evidence_id FROM evidence_resolution r JOIN claim_evidence replacement ON"
+                + " replacement.id=r.replacement_id AND replacement.tenant_id=r.tenant_id AND"
+                + " replacement.country_code=r.country_code WHERE r.tenant_id=? AND"
+                + " r.country_code=? AND replacement.claim_id=? AND"
+                + " replacement.verification_status='MATCH' AND replacement.extraction_digest=?",
+            id,
+            current)) resolved.add((UUID) row.get("evidence_id"));
+    return db
+        .rows(
+            s,
+            "SELECT"
+                + " id,media_type,digest,verification_status,retention_until::text,created_at::text,extraction_digest"
+                + " FROM claim_evidence WHERE tenant_id=? AND country_code=? AND claim_id=? ORDER"
+                + " BY created_at",
+            id)
+        .stream()
+        .map(
+            row -> {
+              Map<String, Object> metadata = new LinkedHashMap<>(row);
+              metadata.put("facts_current", current.equals(metadata.remove("extraction_digest")));
+              metadata.put("resolved", resolved.contains(row.get("id")));
+              return metadata;
+            })
+        .toList();
   }
 
   @Transactional
@@ -149,21 +181,23 @@ public class PlatformService {
     Map old =
         db.one(
             s,
-            "SELECT claim_id,verification_status,extraction_digest FROM claim_evidence WHERE tenant_id=? AND"
-                + " country_code=? AND id=?",
+            "SELECT claim_id,verification_status,extraction_digest FROM claim_evidence WHERE"
+                + " tenant_id=? AND country_code=? AND id=?",
             evidence);
     Map replacement =
         db.one(
             s,
-            "SELECT claim_id,verification_status,extraction_digest FROM claim_evidence WHERE tenant_id=? AND"
-                + " country_code=? AND id=?",
+            "SELECT claim_id,verification_status,extraction_digest FROM claim_evidence WHERE"
+                + " tenant_id=? AND country_code=? AND id=?",
             input.replacement_id());
     require(
         claim.equals(old.get("claim_id"))
             && claim.equals(replacement.get("claim_id"))
             && "MATCH".equals(replacement.get("verification_status"))
             && !evidence.equals(input.replacement_id())
-            && claims.evidenceDigest(claims.extraction(row)).equals(replacement.get("extraction_digest"))
+            && claims
+                .evidenceDigest(claims.extraction(row))
+                .equals(replacement.get("extraction_digest"))
             && !"QUARANTINED".equals(old.get("verification_status")),
         "Resolution requires matching replacement evidence on the same claim; quarantine cannot be"
             + " overridden");
@@ -171,7 +205,8 @@ public class PlatformService {
         s,
         "INSERT INTO"
             + " evidence_resolution(tenant_id,country_code,id,evidence_id,replacement_id,actor,evidence_reference)"
-            + " VALUES(?,?,?,?,?,?,?) ON CONFLICT(tenant_id,country_code,evidence_id,replacement_id) DO NOTHING",
+            + " VALUES(?,?,?,?,?,?,?) ON"
+            + " CONFLICT(tenant_id,country_code,evidence_id,replacement_id) DO NOTHING",
         UUID.randomUUID(),
         evidence,
         input.replacement_id(),
