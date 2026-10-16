@@ -105,7 +105,7 @@ function App() {
       <div className="sidebar-label">CLAIMS WORKSPACE</div>
       <div className="nav-active"><span>▦</span> Hospital Cash <span className="nav-count">{claims.length}</span></div>
       <div className="sidebar-note">{HOSTED?'Cloud presentation':'Standalone prototype'}<br/><small>Independent reference implementation</small></div>
-      <div className="sidebar-bottom"><div className="avatar">{token?username.slice(0,2).toUpperCase():'TC'}</div><div>{token?username:'Local workspace'}<small>Kenya · Synthetic data</small></div></div>
+      <div className="sidebar-bottom"><div className="avatar">{token?username.slice(0,2).toUpperCase():'TC'}</div><div>{token?username:HOSTED?'Cloud workspace':'Local workspace'}<small>Kenya · Synthetic data</small></div></div>
       {token && <button className="sign-out" onClick={signOut}>Sign out</button>}
     </aside>
     <main>
@@ -115,7 +115,7 @@ function App() {
       </section>
       <div className="notice"><span>◈</span><div><strong>Synthetic data only.</strong> All customers and policy terms are synthetic. Every payout is simulated.</div><span className="tag">REFERENCE BUILD</span></div>
       {error && <div role="alert" className="error">{error}</div>}
-      {!token ? <section className="login-card"><div className="eyebrow">YOUR LOCAL WORKSPACE</div><h2>Sign in to review claims</h2><p>Use a seeded demo account. Permissions are checked by the claims service.</p><form onSubmit={login}>
+      {!token ? <section className="login-card"><div className="eyebrow">{HOSTED?'CLOUD WORKSPACE':'YOUR LOCAL WORKSPACE'}</div><h2>Sign in to review claims</h2><p>Use a seeded demo account. Permissions are checked by the claims service.</p><form onSubmit={login}>
         <label>Account<select value={username} onChange={e=>setUsername(e.target.value)}><option value="approver">Approver · Full demo journey</option><option value="reviewer">Reviewer · Review only</option><option value="officer">Claims officer · Intake</option></select></label>
         <label>Password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" required placeholder="Local demo password"/></label>
         <button className="primary" disabled={busy}>{busy?'Signing in…':'Open workspace →'}</button>

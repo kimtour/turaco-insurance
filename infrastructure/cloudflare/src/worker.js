@@ -150,6 +150,7 @@ export async function handle(request, env) {
     const upstream = backendURL(env.BACKEND_ORIGIN, url.pathname);
     upstream.search = url.search;
     const headers = new Headers();
+    headers.set("X-Tunnel-Skip-AntiPhishing-Page", "true");
     for (const name of [
       "Authorization",
       "Content-Type",

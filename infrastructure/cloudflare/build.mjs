@@ -128,6 +128,10 @@ const screenshot = path.join(
 );
 if (fs.existsSync(screenshot))
   write("evidence/workspace-reviewed.png", fs.readFileSync(screenshot));
+for (const name of ["cloud-presentation.png", "cloud-workspace.png"]) {
+  const screenshot = path.join(root, ".cache/verification", name);
+  if (fs.existsSync(screenshot)) write("evidence/" + name, fs.readFileSync(screenshot));
+}
 const cloudProof = path.join(root, ".cache/verification/cloud-check.json");
 if (fs.existsSync(cloudProof) && fs.statSync(cloudProof).size) {
   const proof = JSON.parse(fs.readFileSync(cloudProof));

@@ -69,6 +69,7 @@ test("proxy forwards app credentials but never browser cookies", async () => {
       "Bearer fixture-only",
     );
     assert.equal(observed.options.headers.get("Cookie"), null);
+    assert.equal(observed.options.headers.get("X-Tunnel-Skip-AntiPhishing-Page"), "true");
     assert.equal(r.headers.get("Cache-Control"), "no-store");
   } finally {
     globalThis.fetch = original;
