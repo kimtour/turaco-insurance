@@ -6,11 +6,11 @@ Independent synthetic reference implementation. Not an official Turaco system.
 
 - Repository: https://github.com/kimtour/turaco-insurance (public)
 - Branch: `codex/full-sdlc`
-- Tested commit: `24935a7ff5d69cb677d0444927970da8a0695218`
+- Release package source commit: `24935a7ff5d69cb677d0444927970da8a0695218`
 - Application version: 0.2.0
 - CI run 17: https://github.com/kimtour/turaco-insurance/actions/runs/38853857653
-- All five jobs passed for the tested commit, including the completed operator workspace,
-  current-evidence metadata, provider-simulator API export and multilingual regression gate.
+- This remains the separately verified 0.2.0 package source. Later branch changes are not
+  relabeled as that release artifact.
 
 ## Remote CI result (run 38853857653)
 
@@ -93,7 +93,8 @@ The Mac Docker engine remains unusable; successful container/Testcontainers/kind
 - Security scanning: the Java dependency set and Java runtime image passed HIGH/CRITICAL scans; Python and npm audits also passed. Scanning did not cover every third-party image.
 - Kubernetes: the kind rehearsal is not production security or network enforcement certification. The Keycloak dev fixture has a writable root by documented local-only exception.
 - OCR, ASR and malware validation remain unsupported or human-assisted.
-- No GitHub release or cloud deployment has been created.
+- No GitHub Release or production cloud deployment has been created. The live Codespaces
+  workspace is a synthetic interview presentation only.
 
 ## Open production gates (external approval required)
 
@@ -109,11 +110,26 @@ The Mac Docker engine remains unusable; successful container/Testcontainers/kind
 
 `APP_MODE=integration` fails closed. No real payments, patient data or Turaco connection.
 
-## Current-head revalidation
+## Current branch and presentation verification
 
-Run 17 passed all five jobs on commit `24935a7ff5d69cb677d0444927970da8a0695218`.
-The release candidate was independently downloaded, checksum-verified and provenance-
-verified; its manifest source commit matches the tested commit. Only documentation/evidence
-updates follow this tested code/workflow commit. GitHub Actions reported non-blocking
-maintenance notices for older action runtimes and the upcoming ubuntu-latest image change;
-these did not fail any gate.
+- Current branch source: `53553fd9ba41a6162e7e3d41d82ee99621df3c65`
+  (`codex/full-sdlc`). The 0.2.0 release artifact above remains tied to its original
+  manifest commit.
+- Cloud presentation CI run `38879723658` passed both `presentation` and `cloud-stack`.
+- SDLC CI run `38879723651` passed Java, Python, Compose demo, dashboard and release-candidate
+  jobs on the current branch.
+- The dashboard update is deployed in Codespace `turaco-presentation-gateway-x74r9j5p572vvv7`.
+  Port 5173 is public for the Cloudflare Worker; the other service ports remain private.
+  Cloudflare `/demo/health` returned UP after deployment.
+- The cloud end-to-end check passed inside the Codespace after deployment, including
+  confirmation, assisted verification, human approval and UNKNOWN payout reconciliation.
+- Dashboard action controls now explain that evidence references are required, display
+  errors inline and refresh claim state after a 409 conflict. Local dashboard test and
+  production build passed.
+- A previous temporary port-visibility regression made the hub report a sleeping workspace;
+  visibility was restored and documented in `docs/cloud-presentation.md`. Recheck it if the
+  hub displays that message while Codespaces says the workspace is running.
+- The release candidate was independently downloaded, checksum-verified and provenance-
+  verified; its manifest source commit remains `24935a7ff5d69cb677d0444927970da8a0695218`.
+  GitHub Actions reported non-blocking maintenance notices for older action runtimes and
+  the upcoming ubuntu-latest image change; these did not fail any gate.
