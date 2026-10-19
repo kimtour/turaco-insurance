@@ -23,6 +23,16 @@ class Extracted(BaseModel, Generic[T]):
     source: str | None
 
 
+class ModelTrace(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    trace_id: str
+    provider: str
+    model: str
+    prompt_version: str
+    evaluation_status: str
+    correlation_id: str | None = None
+
+
 class ClaimExtraction(BaseModel):
     model_config = ConfigDict(extra="forbid")
     schema_version: Literal["2"]
@@ -33,6 +43,7 @@ class ClaimExtraction(BaseModel):
     discharge_date: Extracted[date]
     hospital_nights: Extracted[int]
     requires_confirmation: Literal[True]
+    model_trace: ModelTrace | None = None
 
 
 class ExtractionRequest(BaseModel):

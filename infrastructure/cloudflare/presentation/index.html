@@ -1,14 +1,14 @@
 <section class="opening">
   <div>
-    <p class="kicker">Engineering interview / Hospital Cash</p>
-    <h1>Insurance claims reference</h1>
+    <p class="kicker">Engineering portfolio / Synthetic insurance operations</p>
+    <h1>Insurance operations reference</h1>
     <p class="summary">
-      A customer reports a hospital stay. An officer checks the details, a
-      reviewer records a recommendation, and an approver authorizes a simulated
-      benefit. The system keeps the evidence and decision history.
+      A working reference for claims review and partner billing. Human decisions,
+      document checks and deterministic financial rules surround bounded AI
+      assistance. Explore the application, design decisions and verification evidence.
     </p>
     <a class="workspace-link" href="/workspace/"
-      >Open the live claims workspace ↗</a
+      >Open the live operations workspace ↗</a
     >
     <p class="small">
       Independent project using invented policy terms and customers. No real
@@ -38,7 +38,10 @@
   </aside>
 </section>
 <section class="brief">
-  <h2>Interview presentation</h2><div><p><a href="/deck/">Open the browser deck →</a></p><p>Nine slides with presenter notes. Use the arrow keys to present.</p><p><a href="/deck/turaco-interview.pptx">Download PowerPoint</a> · <a href="/handoff/AI-HANDOFF.md">Portable AI handoff</a></p></div>
+  <h2>Interview presentation</h2><div><p><a href="/deck/">Open the browser deck →</a></p><p>Original claims presentation with presenter notes. The case study and operations guide cover the new billing and completeness workflows.</p><p><a href="/deck/turaco-interview.pptx">Original claims PowerPoint</a> · <a href="/handoff/AI-HANDOFF.md">Portable AI handoff</a></p></div>
+</section>
+<section class="brief">
+  <h2>Portfolio case study</h2><div><p>Explore the engineering problem, implemented workflows, tradeoffs and test evidence.</p><p><a href="/portfolio/">Read the case study →</a> · <a href="/documents/docs/ai-operations.html">Operations walkthrough</a> · <a href="https://github.com/kimtour/turaco-insurance/releases/tag/portfolio-2026-10-19">Portfolio source snapshot</a></p></div>
 </section>
 <section class="brief">
   <h2>What runs where</h2>
@@ -85,6 +88,8 @@
   <h2>Demo sequence</h2>
   <div>
     <ol class="sequence">
+      <li><strong>Review a partner file.</strong> Open Partner billing, profile the sample CSV, accept the column mapping, validate the KES 1,100 total, approve and prepare a simulated invoice.</li>
+      <li><strong>Check required documents.</strong> Create an October completeness intake. Uploaded documents require reviewer verification. Two of three requirements cannot pass submission.</li>
       <li>
         <strong>Create and confirm an intake.</strong> Use the sample hospital
         stay, record confirmation and assisted identity/payee verification.
@@ -114,15 +119,16 @@
   <h2>Verification</h2>
   <div>
     <p>
-      The reference candidate passed 23 Java tests, 17 Python tests and eight
-      release-tool tests. All five jobs in the linked run passed, including
-      Docker and Kubernetes checks.
+      The rebuild passed 31 Java tests, 25 Python tests, eight release-tool tests,
+      three billing fixtures and 12 document-completeness scenarios locally.
+      Remote checks for the published source are available in GitHub Actions.
+      Historical release evidence remains tied to its original commit.
     </p>
     <ul class="resources">
       <li>
         <a
           href="https://github.com/kimtour/turaco-insurance/actions/runs/38853857653"
-          >Reference CI run</a
+          >Historical release CI run</a
         ><span>Tests, scans and release packaging</span>
       </li>
       <li>
@@ -171,7 +177,7 @@
   </div>
 </section>
 <section class="brief">
-  <h2>Release 0.2.0</h2>
+  <h2>Historical release 0.2.0</h2>
   <div>
     <p>
       These files belong to the commit named in the release manifest. The cloud

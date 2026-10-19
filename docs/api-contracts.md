@@ -1,5 +1,7 @@
 # API behavior
 
+The [AI operations guide](ai-operations.md) describes the additive billing, document completeness, provenance and channel-simulation endpoints. Generated snapshots include those routes. Existing September claims retain their original requirement rules.
+
 OpenAPI snapshots are in `docs/openapi/`. FastAPI also exposes `/openapi.json` and `/docs`. These internal contracts do not describe or impersonate the Turaco API.
 
 Insurance endpoints require a JWT with configured issuer, `insurance-api` audience, tenant/country claims and the appropriate realm role. Scope comes from the token. Unscoped requests fail with 403; cross-scope resources return 404. Lists accept `page=0&size=20`, capped at 100, and return arrays.

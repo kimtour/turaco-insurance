@@ -138,6 +138,37 @@
         }
       }
     },
+    "/api/v1/voice/simulations": {
+      "post": {
+        "tags": [
+          "channel-simulation-controller"
+        ],
+        "operationId": "voice",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Voice"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/policies": {
       "get": {
         "tags": [
@@ -328,12 +359,53 @@
         }
       }
     },
+    "/api/v1/notifications/simulations": {
+      "post": {
+        "tags": [
+          "channel-simulation-controller"
+        ],
+        "operationId": "notify",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Notification"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/notifications/previews": {
       "post": {
         "tags": [
           "platform-controller"
         ],
-        "operationId": "notify",
+        "operationId": "notify_1",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1047,6 +1119,90 @@
         }
       }
     },
+    "/api/v1/claims/{id}/document-waivers": {
+      "post": {
+        "tags": [
+          "quality-controller"
+        ],
+        "operationId": "waive",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Waiver"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/document-reviews": {
+      "post": {
+        "tags": [
+          "quality-controller"
+        ],
+        "operationId": "review_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Review"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/claims/{id}/corrections": {
       "post": {
         "tags": [
@@ -1211,6 +1367,266 @@
         }
       }
     },
+    "/api/v1/billing/batches": {
+      "get": {
+        "tags": [
+          "billing-controller"
+        ],
+        "operationId": "list_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "billing-controller"
+        ],
+        "operationId": "upload",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Upload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/billing/batches/{id}/resumptions": {
+      "post": {
+        "tags": [
+          "billing-controller"
+        ],
+        "operationId": "resume",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/billing/batches/{id}/mapping-reviews": {
+      "post": {
+        "tags": [
+          "billing-controller"
+        ],
+        "operationId": "mapping",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MappingReview"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/billing/batches/{id}/invoice-preparations": {
+      "post": {
+        "tags": [
+          "billing-controller"
+        ],
+        "operationId": "invoice",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Approval"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/billing/batches/{id}/cancellations": {
+      "post": {
+        "tags": [
+          "billing-controller"
+        ],
+        "operationId": "cancel_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Approval"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/billing/batches/{id}/approvals": {
+      "post": {
+        "tags": [
+          "billing-controller"
+        ],
+        "operationId": "approve_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Approval"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/policies/{id}": {
       "get": {
         "tags": [
@@ -1316,6 +1732,70 @@
         }
       }
     },
+    "/api/v1/claims/{id}/completeness": {
+      "get": {
+        "tags": [
+          "quality-controller"
+        ],
+        "operationId": "summary",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/claims/{id}/channel-summary": {
+      "get": {
+        "tags": [
+          "channel-simulation-controller"
+        ],
+        "operationId": "summary_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/claims/{id}/audit": {
       "get": {
         "tags": [
@@ -1351,6 +1831,38 @@
         }
       }
     },
+    "/api/v1/claims/{id}/ai-traces": {
+      "get": {
+        "tags": [
+          "quality-controller"
+        ],
+        "operationId": "traces",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/channels/whatsapp/messages": {
       "get": {
         "tags": [
@@ -1378,6 +1890,59 @@
           "catalog-controller"
         ],
         "operationId": "catalog",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/billing/batches/{id}": {
+      "get": {
+        "tags": [
+          "billing-controller"
+        ],
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/billing/batches/metrics": {
+      "get": {
+        "tags": [
+          "billing-controller"
+        ],
+        "operationId": "metrics_1",
         "responses": {
           "200": {
             "description": "OK",
@@ -1427,6 +1992,30 @@
           "event_id",
           "internal_claim_id",
           "tenant_id"
+        ]
+      },
+      "Voice": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "language": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "en-KE|sw-KE"
+          },
+          "synthetic_transcript": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "claim_id",
+          "language",
+          "synthetic_transcript"
         ]
       },
       "PolicyInput": {
@@ -1490,18 +2079,27 @@
           "template_key": {
             "type": "string",
             "minLength": 1,
-            "pattern": "claim_received|claim_updated"
+            "pattern": "missing_documents|claim_updated"
+          },
+          "consent": {
+            "type": "boolean"
+          },
+          "opted_out": {
+            "type": "boolean"
           },
           "last_customer_message": {
             "type": "string",
             "format": "date-time"
           },
-          "opted_out": {
-            "type": "boolean"
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
           }
         },
         "required": [
           "claim_id",
+          "evidence_reference",
           "language",
           "last_customer_message",
           "template_key"
@@ -1719,6 +2317,12 @@
           },
           "requires_confirmation": {
             "type": "boolean"
+          },
+          "model_trace": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -1865,6 +2469,20 @@
             "type": "string",
             "maxLength": 20000,
             "minLength": 0
+          },
+          "document_type": {
+            "type": "string",
+            "pattern": "ADMISSION_RECORD|DISCHARGE_SUMMARY|IDENTITY_DOCUMENT"
+          },
+          "customer_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "extraction_confidence": {
+            "type": "number",
+            "format": "double",
+            "maximum": 1,
+            "minimum": 0
           }
         },
         "required": [
@@ -1887,6 +2505,24 @@
         "required": [
           "evidence_reference",
           "replacement_id"
+        ]
+      },
+      "Waiver": {
+        "type": "object",
+        "properties": {
+          "requirement_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "evidence_reference",
+          "requirement_id"
         ]
       },
       "Correction": {
@@ -1948,6 +2584,57 @@
         "required": [
           "language",
           "policy_id"
+        ]
+      },
+      "Upload": {
+        "type": "object",
+        "properties": {
+          "partner_code": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "[A-Za-z0-9_-]{1,60}"
+          },
+          "period": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "[0-9]{4}-[0-9]{2}"
+          },
+          "filename": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 0
+          },
+          "csv": {
+            "type": "string",
+            "maxLength": 200000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "csv",
+          "filename",
+          "partner_code",
+          "period"
+        ]
+      },
+      "MappingReview": {
+        "type": "object",
+        "properties": {
+          "mapping": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "evidence_reference": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "evidence_reference",
+          "mapping"
         ]
       }
     }

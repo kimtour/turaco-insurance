@@ -50,6 +50,21 @@ public class LocalSeed implements CommandLineRunner {
         UUID.fromString("55555555-5555-5555-5555-555555555555"),
         TENANT,
         PRODUCT);
+    for (String[] document :
+        new String[][] {
+          {"ADMISSION_RECORD", "Admission record"},
+          {"DISCHARGE_SUMMARY", "Discharge summary"},
+          {"IDENTITY_DOCUMENT", "Identity document"}
+        })
+      jdbc.update(
+          "INSERT INTO"
+              + " document_requirement(id,tenant_id,country_code,product_id,incident_type_code,version,document_type,label,effective_from)"
+              + " VALUES(?,?,'KE',?,'HOSPITALIZATION',1,?,?,'2026-10-01') ON CONFLICT DO NOTHING",
+          UUID.randomUUID(),
+          TENANT,
+          PRODUCT,
+          document[0],
+          document[1]);
     jdbc.update(
         "INSERT INTO"
             + " policy(id,tenant_id,country_code,customer_id,product_id,policy_number,start_date,end_date,premium,currency,status)"

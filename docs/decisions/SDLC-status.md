@@ -1,5 +1,7 @@
 # SDLC status
 
+19 October development rebuild: [AI operations](../ai-operations.md) and [current verification](REBUILD-2026-10-19.md) describe the new local billing, completeness and model-adapter work. The historical remote release and presentation evidence below remains tied to its named commits; it does not establish deployment of the rebuild.
+
 Independent synthetic reference implementation. Not an official Turaco system.
 
 ## Verified source

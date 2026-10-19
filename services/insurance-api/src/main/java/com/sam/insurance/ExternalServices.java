@@ -38,9 +38,19 @@ public class ExternalServices {
   public Contracts.Extraction extract(String text, String language) {
     return ai.post()
         .uri("/v1/extract-claim")
+        .header("X-Correlation-ID", CorrelationFilter.current().toString())
         .body(Map.of("transcript", text, "language", language))
         .retrieve()
         .body(Contracts.Extraction.class);
+  }
+
+  public Map mapping(List<String> headers) {
+    return ai.post()
+        .uri("/v1/billing/propose-mapping")
+        .header("X-Correlation-ID", CorrelationFilter.current().toString())
+        .body(Map.of("headers", headers))
+        .retrieve()
+        .body(Map.class);
   }
 
   public Map document(String text, Contracts.Extraction extraction) {

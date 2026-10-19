@@ -65,6 +65,16 @@
         "operationId": "extract_v1_extract_claim_post",
         "parameters": [
           {
+            "name": "x-correlation-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Correlation-Id"
+            }
+          },
+          {
             "name": "authorization",
             "in": "header",
             "required": false,
@@ -242,6 +252,64 @@
           }
         }
       }
+    },
+    "/v1/billing/propose-mapping": {
+      "post": {
+        "summary": "Mapping",
+        "operationId": "mapping_v1_billing_propose_mapping_post",
+        "parameters": [
+          {
+            "name": "x-correlation-id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Correlation-Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Profile"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -280,6 +348,16 @@
             "type": "boolean",
             "const": true,
             "title": "Requires Confirmation"
+          },
+          "model_trace": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelTrace"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -357,6 +435,16 @@
           "requires_confirmation": {
             "type": "boolean",
             "title": "Requires Confirmation"
+          },
+          "model_trace": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelTrace"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -620,6 +708,70 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "ModelTrace": {
+        "properties": {
+          "trace_id": {
+            "type": "string",
+            "title": "Trace Id"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "prompt_version": {
+            "type": "string",
+            "title": "Prompt Version"
+          },
+          "evaluation_status": {
+            "type": "string",
+            "title": "Evaluation Status"
+          },
+          "correlation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correlation Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "trace_id",
+          "provider",
+          "model",
+          "prompt_version",
+          "evaluation_status"
+        ],
+        "title": "ModelTrace"
+      },
+      "Profile": {
+        "properties": {
+          "headers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 40,
+            "minItems": 4,
+            "title": "Headers"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "headers"
+        ],
+        "title": "Profile"
       },
       "Turn": {
         "properties": {

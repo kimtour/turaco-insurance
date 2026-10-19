@@ -1,5 +1,7 @@
 # Synthetic platform architecture
 
+The additive AI operations rebuild is documented in [AI operations](ai-operations.md). Spring Boot also owns durable partner batches, approved simulated invoice preparation and effective-dated evidence completeness. Deep Agents receives schema metadata for bounded mapping; it has no financial tools. Existing claim/provider/payout authority and reconciliation remain in force.
+
 The current 0.2 architecture includes outbox workers, provider synchronization, durable conversations, evidence checks and recovery as described in [ADR-002](decisions/ADR-002-local-platform.md). All provider/channel/payment behavior described here is synthetic or simulated unless explicitly identified as an optional model adapter.
 
 Java owns authoritative standalone claims, verification attestations, policy checks, human decisions and the simulated ledger. FastAPI extracts candidate values. Keycloak issues asymmetric JWTs; issuer, audience, expiry, roles and tenant/country claims constrain access. The dashboard and demo use the same protected API.

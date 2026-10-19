@@ -17,10 +17,12 @@ public class ClaimsService {
       Set.of("incident_type_code", "hospital_name", "admission_date", "discharge_date");
   private final Store db;
   private final StandaloneAdapter adapter;
+  private final CompletenessService quality;
 
-  public ClaimsService(Store db, StandaloneAdapter adapter) {
+  public ClaimsService(Store db, StandaloneAdapter adapter, CompletenessService quality) {
     this.db = db;
     this.adapter = adapter;
+    this.quality = quality;
   }
 
   private void require(boolean yes, String message) {
@@ -145,10 +147,15 @@ public class ClaimsService {
   public ClaimView create(Scope s, String key, CreateClaim input) {
     lockCreation(s, key);
     String digest = EncryptedPayloads.digest(db.json(input));
-    var replay = db.rows(s,
-        "SELECT id,request_digest FROM claim WHERE tenant_id=? AND country_code=? AND client_key=?", key);
+    var replay =
+        db.rows(
+            s,
+            "SELECT id,request_digest FROM claim WHERE tenant_id=? AND country_code=? AND"
+                + " client_key=?",
+            key);
     if (!replay.isEmpty()) {
-      require(digest.equals(replay.getFirst().get("request_digest")),
+      require(
+          digest.equals(replay.getFirst().get("request_digest")),
           "Idempotency key was already used for a different request");
       return get(s, (UUID) replay.getFirst().get("id"));
     }
@@ -158,14 +165,21 @@ public class ClaimsService {
   void lockCreation(Scope s, String key) {
     if (key == null || !key.matches("[A-Za-z0-9:_-]{1,120}"))
       throw new ResponseStatusException(BAD_REQUEST, "A valid Idempotency-Key is required");
-    db.rows(s,
-        "SELECT pg_advisory_xact_lock(hashtextextended(?::text || ':' || ?::text || ':' || ?,0))", key);
+    db.rows(
+        s,
+        "SELECT pg_advisory_xact_lock(hashtextextended(?::text || ':' || ?::text || ':' || ?,0))",
+        key);
   }
 
   String evidenceDigest(Extraction extraction) {
-    return EncryptedPayloads.digest(db.json(Arrays.asList(extraction.language(),
-        extraction.incident_type_code().value(), extraction.hospital_name().value(),
-        extraction.admission_date().value(), extraction.discharge_date().value())));
+    return EncryptedPayloads.digest(
+        db.json(
+            Arrays.asList(
+                extraction.language(),
+                extraction.incident_type_code().value(),
+                extraction.hospital_name().value(),
+                extraction.admission_date().value(),
+                extraction.discharge_date().value())));
   }
 
   private ClaimView insert(Scope s, String key, CreateClaim input, String digest) {
@@ -271,7 +285,9 @@ public class ClaimsService {
         id,
         "intake",
         row.get("intake_status").toString(),
-        (boolean) row.get("claimant_verified") ? "READY_TO_SUBMIT" : "VERIFIED");
+        (boolean) row.get("claimant_verified") && quality.complete(s, id)
+            ? "READY_TO_SUBMIT"
+            : "VERIFIED");
     db.audit(
         s,
         id,
@@ -293,7 +309,7 @@ public class ClaimsService {
             + " id=?",
         input.payee_verified(),
         id);
-    if ("VERIFIED".equals(row.get("intake_status")))
+    if ("VERIFIED".equals(row.get("intake_status")) && quality.complete(s, id))
       move(s, id, "intake", "VERIFIED", "READY_TO_SUBMIT");
     db.audit(
         s,
@@ -345,8 +361,19 @@ public class ClaimsService {
   }
 
   @Transactional
+  public void refreshReadiness(Scope s, UUID id) {
+    var row = lock(s, id);
+    if ("VERIFIED".equals(row.get("intake_status"))
+        && (boolean) row.get("claimant_verified")
+        && quality.complete(s, id)) move(s, id, "intake", "VERIFIED", "READY_TO_SUBMIT");
+    else if ("READY_TO_SUBMIT".equals(row.get("intake_status")) && !quality.complete(s, id))
+      move(s, id, "intake", "READY_TO_SUBMIT", "VERIFIED");
+  }
+
+  @Transactional
   public ClaimView submit(Scope s, UUID id) {
     Map<String, Object> row = lock(s, id);
+    quality.requireComplete(s, id);
     if ("SUBMITTED".equals(row.get("intake_status"))) return get(s, id);
     require(
         "READY_TO_SUBMIT".equals(row.get("intake_status"))
@@ -373,8 +400,7 @@ public class ClaimsService {
         "NOT_AUTHORIZED".equals(row.get("payout_status")),
         "Claims with reserved or completed payouts cannot be reviewed");
     require(
-        "SUBMITTED".equals(row.get("intake_status")),
-        "Claim must be resubmitted before review");
+        "SUBMITTED".equals(row.get("intake_status")), "Claim must be resubmitted before review");
     db.update(
         s,
         "INSERT INTO"
@@ -407,6 +433,7 @@ public class ClaimsService {
   public ClaimView approve(Scope s, UUID id, Approval input) {
     Map<String, Object> row = lock(s, id);
     if (get(s, id).obligation_id() != null) return get(s, id);
+    quality.requireComplete(s, id);
     require(
         "SUBMITTED".equals(row.get("intake_status"))
             && (boolean) row.get("claimant_verified")
@@ -429,14 +456,17 @@ public class ClaimsService {
         db.rows(
                 s,
                 "SELECT e.id FROM claim_evidence e WHERE e.tenant_id=? AND e.country_code=? AND"
-                    + " e.claim_id=? AND (e.verification_status<>'MATCH' OR e.extraction_digest IS DISTINCT FROM ?)"
-                    + " AND NOT EXISTS (SELECT 1 FROM evidence_resolution r JOIN claim_evidence replacement"
-                    + " ON replacement.id=r.replacement_id AND replacement.tenant_id=r.tenant_id"
-                    + " AND replacement.country_code=r.country_code WHERE r.evidence_id=e.id"
-                    + " AND r.tenant_id=e.tenant_id AND r.country_code=e.country_code"
-                    + " AND replacement.claim_id=e.claim_id AND replacement.verification_status='MATCH'"
+                    + " e.claim_id=? AND (e.verification_status<>'MATCH' OR e.extraction_digest IS"
+                    + " DISTINCT FROM ?) AND NOT EXISTS (SELECT 1 FROM evidence_resolution r JOIN"
+                    + " claim_evidence replacement ON replacement.id=r.replacement_id AND"
+                    + " replacement.tenant_id=r.tenant_id AND"
+                    + " replacement.country_code=r.country_code WHERE r.evidence_id=e.id AND"
+                    + " r.tenant_id=e.tenant_id AND r.country_code=e.country_code AND"
+                    + " replacement.claim_id=e.claim_id AND replacement.verification_status='MATCH'"
                     + " AND replacement.extraction_digest=?)",
-                id, currentEvidence, currentEvidence)
+                id,
+                currentEvidence,
+                currentEvidence)
             .isEmpty(),
         "Evidence discrepancy requires corrected evidence and human review");
     Map<String, Object> b = eligibility(s, row);

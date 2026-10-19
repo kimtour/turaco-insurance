@@ -31,7 +31,20 @@ public final class Contracts {
       @NotNull @Valid Extracted<LocalDate> admission_date,
       @NotNull @Valid Extracted<LocalDate> discharge_date,
       @NotNull @Valid Extracted<Integer> hospital_nights,
-      boolean requires_confirmation) {}
+      boolean requires_confirmation,
+      Map<String, String> model_trace) {
+    public Extraction(
+        String schema,
+        String language,
+        Extracted<String> incident,
+        Extracted<String> hospital,
+        Extracted<LocalDate> admission,
+        Extracted<LocalDate> discharge,
+        Extracted<Integer> nights,
+        boolean confirmation) {
+      this(schema, language, incident, hospital, admission, discharge, nights, confirmation, null);
+    }
+  }
 
   public record CreateClaim(@NotNull UUID policy_id, @NotNull @Valid Extraction extraction) {}
 

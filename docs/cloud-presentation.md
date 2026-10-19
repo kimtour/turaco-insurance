@@ -14,7 +14,13 @@ The Cloudflare presentation hub provides the live workspace, this guide, archite
 4. Keep the Codespace browser tab open during the presentation. A sleeping workspace must be resumed from GitHub. The hub, source and evidence remain accessible while compute sleeps.
 5. Stop the Codespace after the presentation from GitHub's Codespaces page. Its database volumes remain in that Codespace until it is deleted or expires.
 
-## Suggested 8-minute story
+## Rebuild walkthrough
+
+Open Partner billing, use a unique synthetic partner code and profile the prefilled CSV. Review the four proposed mappings, enter a reference, validate the KES 1,100 total, then approve and prepare a simulated invoice using references for each action. Repeat preparation safely without creating another invoice.
+
+Return to Claims and create an October completeness intake. Open the requirements, attach typed synthetic evidence and record reviewer verification. Show that two of three verified requirements cannot pass submission. Follow with the original payout recovery sequence below. The original downloadable PowerPoint covers the earlier claims slice; the browser deck and case study include the rebuild.
+
+## Suggested claims story
 
 **Problem · 1 minute.** Help a customer submit a hospitalization claim while preserving confirmation, human authority, auditability and payment safety. The product terms, hospital and identities in this demo are invented.
 

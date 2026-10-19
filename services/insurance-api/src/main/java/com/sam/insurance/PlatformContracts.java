@@ -20,7 +20,16 @@ public final class PlatformContracts {
       @NotNull @Valid Contracts.Extraction extraction,
       @NotBlank @Size(max = 200) String evidence_reference) {}
 
-  public record Evidence(@NotBlank @Size(max = 20000) String synthetic_text) {}
+  public record Evidence(
+      @NotBlank @Size(max = 20000) String synthetic_text,
+      @Pattern(regexp = "ADMISSION_RECORD|DISCHARGE_SUMMARY|IDENTITY_DOCUMENT")
+          String document_type,
+      UUID customer_id,
+      @DecimalMin("0") @DecimalMax("1") Double extraction_confidence) {
+    public Evidence(String text) {
+      this(text, null, null, null);
+    }
+  }
 
   public record Resolution(
       @NotNull UUID replacement_id, @NotBlank @Size(max = 200) String evidence_reference) {}

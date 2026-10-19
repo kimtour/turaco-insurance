@@ -32,7 +32,7 @@ const docs = files.filter(
   (p) => (p === "README.md" || p.startsWith("docs/")) && p.endsWith(".md"),
 );
 const page = (title, body) =>
-  `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · Turaco reference</title><meta name="description" content="A synthetic insurance engineering reference: live Java/Python cloud demo, architecture and verified release."><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/presentation.css"></head><body><header><a class="brand" href="/">t. <span>Turaco reference</span></a><span class="badge">SYNTHETIC DEMO</span></header><main>${body}</main><footer>Independent interview reference · No real insurance, messages or money transfers. <a href="https://github.com/kimtour/turaco-insurance">Public source</a></footer></body></html>`;
+  `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · Turaco reference</title><meta name="description" content="A synthetic insurance engineering reference: live Java/Python cloud demo, architecture and verified release."><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/presentation.css"></head><body><header><a class="brand" href="/">t. <span>Turaco reference</span></a><span class="badge">SYNTHETIC DEMO</span></header><main>${body}</main><footer>Independent engineering portfolio · No real insurance, messages or money transfers. <a href="https://github.com/kimtour/turaco-insurance">Public source</a></footer></body></html>`;
 marked.use({
   renderer: {
     html({ text }) {
@@ -122,6 +122,7 @@ fs.writeFileSync(
   path.join(dir, ".generated/downloads.json"),
   JSON.stringify(downloadIndex),
 );
+write("evidence/rebuild-billing.png", fs.readFileSync(path.join(root, "docs/evidence/rebuild-billing.png")));
 const screenshot = path.join(
   root,
   ".cache/verification/workspace-reviewed.png",
@@ -153,7 +154,7 @@ write(
 );
 const deck = JSON.parse(fs.readFileSync(path.join(root, "docs/presentation/slides.json"), "utf8"));
 const slideMarkup = deck.map((slide, i) => `<section class="slide" id="slide-${i + 1}" aria-label="Slide ${i + 1}"><h1>${esc(slide.title)}</h1><p class="subtitle">${esc(slide.subtitle)}</p><ol>${slide.rows.map(row => `<li>${esc(row)}</li>`).join("")}</ol><details><summary>Presenter notes</summary><p>${esc(slide.notes)}</p></details><p class="page-number">${i + 1} / ${deck.length}</p></section>`).join("");
-write("deck/index.html", `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hospital cash claims | Interview presentation</title><link rel="stylesheet" href="/deck/deck.css"></head><body><nav><a href="/">Hub</a><a href="/workspace/" target="_blank" rel="noopener">Live demo</a><a href="/deck/turaco-interview.pptx">PowerPoint</a><button id="previous" aria-label="Previous slide">Previous</button><span id="position" aria-live="polite"></span><button id="next" aria-label="Next slide">Next</button><button id="fullscreen">Full screen</button></nav><main>${slideMarkup}</main><script src="/deck/deck.js" defer></script></body></html>`);
+write("deck/index.html", `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hospital cash claims | Interview presentation</title><link rel="stylesheet" href="/deck/deck.css"></head><body><nav><a href="/">Hub</a><a href="/workspace/" target="_blank" rel="noopener">Live demo</a><a href="/deck/turaco-interview.pptx">Original claims PowerPoint</a><button id="previous" aria-label="Previous slide">Previous</button><span id="position" aria-live="polite"></span><button id="next" aria-label="Next slide">Next</button><button id="fullscreen">Full screen</button></nav><main>${slideMarkup}</main><script src="/deck/deck.js" defer></script></body></html>`);
 write("deck/deck.css", fs.readFileSync(path.join(dir, "presentation/deck.css")));
 write("deck/deck.js", fs.readFileSync(path.join(dir, "presentation/deck.js")));
 write("deck/turaco-interview.pptx", fs.readFileSync(path.join(root, "docs/presentation/turaco-interview.pptx")));
@@ -169,6 +170,7 @@ write(
       .replace("{{releaseLinks}}", releaseLinks),
   ),
 );
+write("portfolio/index.html", page("Insurance operations case study", fs.readFileSync(path.join(dir, "presentation/portfolio.html"), "utf8")));
 write(
   "presentation.js",
   `document.querySelector('#check-status')?.addEventListener('click',async()=>{const button=document.querySelector('#check-status'),status=document.querySelector('#demo-status');button.disabled=true;status.textContent='Checking the cloud gateway…';try{const response=await fetch('/demo/status');const result=await response.json();status.textContent=result.ready?'Ready · live Java stack is responding':'Sleeping or starting · resume the workspace below';status.dataset.ready=String(result.ready);if(result.workspace_url)document.querySelector('#start-workspace').href=result.workspace_url;}catch{status.textContent='Status unavailable · open GitHub Codespaces to resume';}finally{button.disabled=false;}});fetch('/demo/status').then(r=>r.json()).then(r=>{if(r.workspace_url)document.querySelector('#start-workspace').href=r.workspace_url;}).catch(()=>{document.querySelector('#demo-status').textContent='Readiness check unavailable. Use GitHub Codespaces to inspect the workspace.';});`,

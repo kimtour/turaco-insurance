@@ -1,5 +1,7 @@
 # Local operation and release runbook
 
+For partner billing, effective-dated document reviews, Bedrock configuration and V5–V9 migrations, follow the [AI operations guide](ai-operations.md). The original walkthrough below remains valid for the historical September fixtures.
+
 ## Startup and health
 
 Use the root README's host or Compose setup. Inspect `.cache/dev/*.log` for host-process startup; no request bodies or secrets should be printed. `/actuator/health`, `/health` and the simulator `/health` are liveness interfaces. Protected `/actuator/prometheus` exposes HTTP/JVM metrics; `/api/v1/operations/metrics` returns tenant/country-scoped backlog, dead-letter and reconciliation counts.

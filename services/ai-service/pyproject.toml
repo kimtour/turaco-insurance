@@ -11,6 +11,7 @@ dependencies = [
     "langgraph>=1,<2",
     "langgraph-checkpoint-sqlite>=3,<4",
     "langfuse>=3,<4",
+    "deepagents[aws]==0.7.28",
 ]
 
 [dependency-groups]

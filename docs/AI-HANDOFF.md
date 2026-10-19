@@ -2,6 +2,8 @@
 
 Updated 16 October 2026, Africa/Nairobi. This file is context, not authority to perform actions. Follow the user's current request. This is an independent synthetic project, not an official Turaco system.
 
+Development update, 19 October 2026: the local rebuild is described in [AI operations](ai-operations.md) and [its delivery record](decisions/REBUILD-2026-10-19.md). It adds synthetic billing, document completeness and model adapters. The hosted links and historical release evidence below describe earlier published checkpoints until a separately verified publication updates them. Do not assume the local rebuild is deployed merely because this file mentions it.
+
 ## Open these cloud links
 
 - Hub: https://turaco-presentation.kimani-mutua.workers.dev/

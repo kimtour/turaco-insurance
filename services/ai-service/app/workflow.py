@@ -7,8 +7,9 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 from langgraph.graph import END, START, StateGraph
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
-from app.schema import ExtractionRequest, enforce_provenance
+from app.schema import ExtractionRequest, ModelTrace, enforce_provenance
 from app.providers.registry import provider
+from app.observability import extraction_metadata, trace_task
 
 # Opt out of automatic prompt/state tracing; only observability.py exports approved metadata.
 os.environ["LANGSMITH_TRACING"] = "false"
@@ -36,6 +37,8 @@ async def extract(state: State):
     transcript = "\n".join(state["messages"])[-20000:]
     request = ExtractionRequest(transcript=transcript, language=state["language"])
     result = enforce_provenance(await provider().extract(request), transcript, request.incident_catalog)
+    result.model_trace = ModelTrace.model_validate(extraction_metadata())
+    trace_task("claim-conversation-extraction", result.model_trace.model_dump(exclude_none=True))
     missing = [name for name in ("hospital_name", "incident_type_code", "admission_date", "discharge_date")
                if getattr(result, name).value is None or getattr(result, name).status.value in ("missing", "unverified")]
     return {"extraction": result.model_dump(mode="json"), "missing_fields": missing}

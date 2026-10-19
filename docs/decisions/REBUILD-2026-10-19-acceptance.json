@@ -1,0 +1,124 @@
+{
+  "classification": "synthetic-only",
+  "billing": [
+    {
+      "fixture": "normal.csv",
+      "result": "passed",
+      "elapsed_seconds": 0.896,
+      "total": "1100.00",
+      "invalid_rows_explicitly_excluded": []
+    },
+    {
+      "fixture": "renamed.csv",
+      "result": "passed",
+      "elapsed_seconds": 0.169,
+      "total": "1100.00",
+      "invalid_rows_explicitly_excluded": []
+    },
+    {
+      "fixture": "exceptions.csv",
+      "result": "passed",
+      "elapsed_seconds": 0.137,
+      "total": "500.00",
+      "invalid_rows_explicitly_excluded": [
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "completeness": [
+    {
+      "case": "zero-of-three",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.166
+    },
+    {
+      "case": "one-of-three",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.135
+    },
+    {
+      "case": "two-of-three",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.135
+    },
+    {
+      "case": "uploaded-is-not-verified",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.165
+    },
+    {
+      "case": "three-verified",
+      "expected": true,
+      "actual": true,
+      "result": "passed",
+      "elapsed_seconds": 0.151
+    },
+    {
+      "case": "duplicate-does-not-fill-requirements",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.136
+    },
+    {
+      "case": "unreadable",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.114
+    },
+    {
+      "case": "conflicting-dates",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.101
+    },
+    {
+      "case": "swahili-verified",
+      "expected": true,
+      "actual": true,
+      "result": "passed",
+      "elapsed_seconds": 0.103
+    },
+    {
+      "case": "wrong-customer",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.048
+    },
+    {
+      "case": "wrong-claim",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.091
+    },
+    {
+      "case": "stale-facts",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.206
+    }
+  ],
+  "metrics": {
+    "false_complete_count": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "scope": "12 invented regression scenarios; not production accuracy"
+  },
+  "result": "passed"
+}

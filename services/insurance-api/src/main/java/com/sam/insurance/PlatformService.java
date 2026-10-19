@@ -14,13 +14,19 @@ public class PlatformService {
   private final ClaimsService claims;
   private final ExternalServices external;
   private final EncryptedPayloads encryption;
+  private final CompletenessService quality;
 
   public PlatformService(
-      Store db, ClaimsService claims, ExternalServices external, EncryptedPayloads encryption) {
+      Store db,
+      ClaimsService claims,
+      ExternalServices external,
+      EncryptedPayloads encryption,
+      CompletenessService quality) {
     this.db = db;
     this.claims = claims;
     this.external = external;
     this.encryption = encryption;
+    this.quality = quality;
   }
 
   public Contracts.ClaimView existing(Scope s, UUID id) {
@@ -48,12 +54,29 @@ public class PlatformService {
       return claims.get(s, (UUID) existing.getFirst().get("id"));
     }
     try {
-      var claim =
-          claims.create(
-              s,
-              key,
-              new Contracts.CreateClaim(
-                  input.policy_id(), external.extract(input.text(), input.language())));
+      var extracted = external.extract(input.text(), input.language());
+      var claim = claims.create(s, key, new Contracts.CreateClaim(input.policy_id(), extracted));
+      if (extracted.model_trace() != null) {
+        Map<String, String> safe = new LinkedHashMap<>();
+        for (String name :
+            List.of(
+                "trace_id",
+                "correlation_id",
+                "provider",
+                "model",
+                "prompt_version",
+                "evaluation_status")) {
+          String value = extracted.model_trace().get(name);
+          if (value != null && value.length() <= 250) safe.put(name, value);
+        }
+        db.update(
+            s,
+            "INSERT INTO ai_task_trace(tenant_id,country_code,id,claim_id,metadata)"
+                + " VALUES(?,?,?,?,?::jsonb)",
+            UUID.randomUUID(),
+            claim.id(),
+            db.json(safe));
+      }
       db.update(
           s,
           "UPDATE claim SET text_request_digest=v.digest FROM (SELECT ?::uuid t,?::text c,?::text"
@@ -100,6 +123,19 @@ public class PlatformService {
   @Transactional
   public Map<String, Object> evidence(Scope s, UUID id, Evidence input) {
     Map row = claims.lock(s, id);
+    if (input.document_type() != null) {
+      Map policy =
+          db.one(
+              s,
+              "SELECT customer_id FROM policy WHERE tenant_id=? AND country_code=? AND id=?",
+              row.get("policy_id"));
+      require(
+          policy.get("customer_id").equals(input.customer_id()),
+          "Typed evidence must identify the policy customer");
+    } else
+      require(
+          input.customer_id() == null,
+          "A document type is required for customer-associated evidence");
     require(
         !Set.of("APPROVED", "REJECTED", "CLOSED").contains(row.get("provider_claim_status")),
         "Decided claims do not accept new evidence");
@@ -123,15 +159,19 @@ public class PlatformService {
     db.update(
         s,
         "INSERT INTO"
-            + " claim_evidence(tenant_id,country_code,id,claim_id,media_type,ciphertext,digest,verification_status,retention_until,actor,extraction_digest)"
-            + " VALUES(?,?,?,?,'text/plain',?,?,?,now()+interval '30 days',?,?)",
+            + " claim_evidence(tenant_id,country_code,id,claim_id,media_type,ciphertext,digest,verification_status,retention_until,actor,extraction_digest,document_type,customer_id,extraction_confidence)"
+            + " VALUES(?,?,?,?,'text/plain',?,?,?,now()+interval '30 days',?,?,?,?,?)",
         evidence,
         id,
         ciphertext,
         EncryptedPayloads.digest(input.synthetic_text()),
         status,
         s.actor(),
-        claims.evidenceDigest(claims.extraction(row)));
+        claims.evidenceDigest(claims.extraction(row)),
+        input.document_type(),
+        input.customer_id(),
+        input.extraction_confidence());
+    claims.refreshReadiness(s, id);
     db.audit(
         s,
         id,
@@ -160,7 +200,7 @@ public class PlatformService {
         .rows(
             s,
             "SELECT"
-                + " id,media_type,digest,verification_status,retention_until::text,created_at::text,extraction_digest"
+                + " id,media_type,digest,verification_status,retention_until::text,created_at::text,extraction_digest,document_type,customer_id,extraction_confidence"
                 + " FROM claim_evidence WHERE tenant_id=? AND country_code=? AND claim_id=? ORDER"
                 + " BY created_at",
             id)
@@ -259,6 +299,7 @@ public class PlatformService {
   @Transactional
   public Contracts.ClaimView providerSubmit(Scope s, UUID id) {
     Map row = claims.lock(s, id);
+    quality.requireComplete(s, id);
     if ("LOCAL_SIMULATOR".equals(row.get("provider_kind"))
         && "SUBMITTED".equals(row.get("intake_status"))) return claims.get(s, id);
     require(

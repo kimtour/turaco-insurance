@@ -1,0 +1,14 @@
+[
+ {"id":"zero-of-three","documents":[],"verified":[],"complete":false},
+ {"id":"one-of-three","documents":["ADMISSION_RECORD"],"verified":["ADMISSION_RECORD"],"complete":false},
+ {"id":"two-of-three","documents":["ADMISSION_RECORD","DISCHARGE_SUMMARY"],"verified":["ADMISSION_RECORD","DISCHARGE_SUMMARY"],"complete":false},
+ {"id":"uploaded-is-not-verified","documents":["ADMISSION_RECORD","DISCHARGE_SUMMARY","IDENTITY_DOCUMENT"],"verified":[],"complete":false},
+ {"id":"three-verified","documents":["ADMISSION_RECORD","DISCHARGE_SUMMARY","IDENTITY_DOCUMENT"],"verified":["ADMISSION_RECORD","DISCHARGE_SUMMARY","IDENTITY_DOCUMENT"],"complete":true},
+ {"id":"duplicate-does-not-fill-requirements","documents":["ADMISSION_RECORD","ADMISSION_RECORD","ADMISSION_RECORD"],"verified":["ADMISSION_RECORD"],"complete":false},
+ {"id":"unreadable","documents":["ADMISSION_RECORD","DISCHARGE_SUMMARY","IDENTITY_DOCUMENT"],"verified":["ADMISSION_RECORD","DISCHARGE_SUMMARY"],"unreadable":"IDENTITY_DOCUMENT","complete":false},
+ {"id":"conflicting-dates","documents":["ADMISSION_RECORD","DISCHARGE_SUMMARY","IDENTITY_DOCUMENT"],"verified":["ADMISSION_RECORD","IDENTITY_DOCUMENT"],"conflict":"DISCHARGE_SUMMARY","complete":false},
+ {"id":"swahili-verified","language":"sw-KE","documents":["ADMISSION_RECORD","DISCHARGE_SUMMARY","IDENTITY_DOCUMENT"],"verified":["ADMISSION_RECORD","DISCHARGE_SUMMARY","IDENTITY_DOCUMENT"],"complete":true},
+ {"id":"wrong-customer","documents":["ADMISSION_RECORD"],"verified":[],"wrong_customer":true,"complete":false},
+ {"id":"wrong-claim","documents":["ADMISSION_RECORD"],"verified":[],"wrong_claim":true,"complete":false},
+ {"id":"stale-facts","documents":["ADMISSION_RECORD","DISCHARGE_SUMMARY","IDENTITY_DOCUMENT"],"verified":["ADMISSION_RECORD","DISCHARGE_SUMMARY","IDENTITY_DOCUMENT"],"correct_after_review":true,"complete":false}
+]

@@ -91,6 +91,9 @@ def start(skip_build=False):
         run(["npm","ci"],ROOT/"apps/claims-dashboard")
     jar=ROOT/"services/insurance-api/target/insurance-api-0.2.0.jar"
     if not jar.exists():raise RuntimeError("Build the 0.2.0 Java service before --skip-build")
+    # Run a snapshot so a later Maven build cannot replace the live JVM's archive.
+    runtime_jar=RUNTIME/"insurance-api.jar"
+    shutil.copyfile(jar,runtime_jar)
     home=Path(os.environ.get("KEYCLOAK_HOME",str(RUNTIME/"keycloak-26.4.0"))).resolve()
     if not (home/"bin/kc.sh").exists():
         archive=RUNTIME/"keycloak.tar.gz"
@@ -116,7 +119,7 @@ def start(skip_build=False):
     spawn("ai",[str(python),"-m","uvicorn","app.main:app","--host","127.0.0.1","--port","8000","--app-dir",str(ROOT/"services/ai-service")],ROOT/"services/ai-service",shared,str(ROOT/"services/ai-service"))
     spawn("simulator",[str(python),"-m","uvicorn","app.simulator:app","--host","127.0.0.1","--port","9000","--app-dir",str(ROOT/"services/ai-service")],ROOT/"services/ai-service",shared,str(ROOT/"services/ai-service"))
     api_env={**env,"SPRING_PROFILES_ACTIVE":"local","LOCAL_SEED":"true","SERVER_ADDRESS":"127.0.0.1","SERVER_PORT":"18080","DB_URL":"jdbc:postgresql://127.0.0.1:55433/turaco_dev","DB_USER":"turaco_local","QUEUE_WORKER_ENABLED":"true"}
-    spawn("api",["java","-Xms64m","-Xmx384m","-jar",str(jar)],ROOT,api_env,str(jar))
+    spawn("api",["java","-Xms64m","-Xmx384m","-jar",str(runtime_jar)],ROOT,api_env,str(runtime_jar))
     dashboard=ROOT/"apps/claims-dashboard"
     (dashboard/".env.local").write_text("API_PROXY_TARGET=http://127.0.0.1:18080\n")
     vite=dashboard/"node_modules/vite/bin/vite.js"

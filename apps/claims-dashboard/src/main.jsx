@@ -1,6 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import PlatformTools from './PlatformTools';
+import BillingWorkspace from './BillingWorkspace';
+import ClaimQuality from './ClaimQuality';
+import ChannelRehearsal from './ChannelRehearsal';
 import {evidenceReferenceError} from './action-validation.js';
 import './styles.css';
 
@@ -25,6 +28,7 @@ function sample() {
 }
 function App() {
   const [token,setToken] = useState('');
+  const [area,setArea] = useState('claims');
   const [username,setUsername] = useState('approver');
   const [password,setPassword] = useState('');
   const [claims,setClaims] = useState([]);
@@ -86,6 +90,7 @@ function App() {
   function signOut() {
     session.current='';selectionEpoch.current++;
     setToken('');setClaims([]);setSelected(null);setAudit([]);setCatalog(null);setPage(0);setReference('');setBusy(false);setError('');setActionError('');
+    setArea('claims');
   }
   async function login(event) {
     event.preventDefault();setBusy(true);setError('');
@@ -102,6 +107,11 @@ function App() {
     setBusy(true);setError('');
     try {const claim=await api('/claims',sample(),crypto.randomUUID());await load(claim.id,0);}
     catch(e) {setError(e.message);} finally {setBusy(false);}
+  }
+  async function createQuality() {
+    setBusy(true);setError('');
+    try {const claim=await api('/intakes/from-text',{policy_id:POLICY,language:'en-KE',text:'Synthetic hospitalization. Hospital: Demo Nairobi Hospital. Admitted 2026-10-01 and discharged 2026-10-04.'},crypto.randomUUID());await load(claim.id,0);}
+    catch(e){setError(e.message);}finally{setBusy(false);}
   }
   async function act(path,body) {
     const validationError = evidenceReferenceError(reference);
@@ -144,7 +154,7 @@ function App() {
     <main>
       <header><span>Claims / <b>Hospital Cash</b></span><span className="environment">{HOSTED?'CLOUD DEMO':'LOCAL DEMO'}</span></header>
       <section className="intro"><div><div className="eyebrow">KENYA · SYNTHETIC HOSPITAL CASH</div><h1>Hospital Cash claims</h1><p>Review intake details, record a decision and reconcile simulated payouts.</p>{HOSTED&&<p className="cloud-notice"><a href="/">← Presentation hub</a> · Live Java/Python reference stack in GitHub Codespaces · Synthetic inputs only. Source and verification evidence are available in the presentation hub.</p>}</div>
-        {token && can('write') && <button className="primary" disabled={busy} onClick={create}>＋ Create sample intake</button>}
+        {token && can('write') && area==='claims' && <div className="actions"><button className="primary" disabled={busy} onClick={create}>＋ Create sample intake</button><button disabled={busy} onClick={createQuality}>＋ October completeness intake</button></div>}
       </section>
       <div className="notice"><span>◈</span><div><strong>Synthetic data only.</strong> All customers and policy terms are synthetic. Every payout is simulated.</div><span className="tag">REFERENCE BUILD</span></div>
       {error && <div role="alert" className="error">{error}</div>}
@@ -153,8 +163,12 @@ function App() {
         <label>Password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" required placeholder="Local demo password"/></label>
         <button className="primary" disabled={busy}>{busy?'Signing in…':'Open workspace →'}</button>
       </form><small>{HOSTED?'Demo fixture password:':'Local fixture password:'} <code>local-demo-only</code>. {HOSTED?'Synthetic presentation only. Data is retained while this cloud workspace exists. No real transfers or messages.':'This sign-in is for synthetic development only.'}</small></section> : <>
+        <nav className="workspace-tabs" aria-label="Operations area"><button aria-current={area==='claims'?'page':undefined} disabled={busy} onClick={()=>setArea('claims')}>Claims</button><button aria-current={area==='billing'?'page':undefined} disabled={busy} onClick={()=>setArea('billing')}>Partner billing</button></nav>
+        {area==='billing'?<BillingWorkspace api={api} can={can} busy={busy} setBusy={setBusy} reportError={setError}/>:<>
         <div className="stats"><div><span>THIS PAGE</span><strong>{claims.length}<small> claims</small></strong></div><div><span>AWAITING A DECISION</span><strong>{claims.filter(c=>c.provider_claim_status==='RECEIVED').length}<small> to review</small></strong></div><div><span>SIMULATED PAYOUTS</span><strong>{claims.filter(c=>c.payout_status==='CONFIRMED').length}<small> confirmed</small></strong></div><div className="stat-mode"><span>CONNECTED MODE</span><strong>{catalog?.mode==='standalone'?'Standalone':'Connecting…'}</strong><small>Human authorization required</small></div></div>
         <PlatformTools api={api} selected={selected} can={can} refresh={load} reportError={setError} busy={busy} setBusy={setBusy} reference={reference} setReference={setReference}/>
+        <ClaimQuality api={api} selected={selected} can={can} refresh={load} reportError={setError} busy={busy} setBusy={setBusy}/>
+        <ChannelRehearsal key={selected?.id} api={api} selected={selected} can={can} reportError={setError} busy={busy} setBusy={setBusy}/>
         <div className="columns"><section className="queue panel"><div className="panel-title"><h2>Claims inbox</h2><button className="text-button" disabled={busy||loading} onClick={()=>load().catch(e=>setError(e.message))}>↻ Refresh</button></div>
           {loading&&<p className="empty" role="status">Loading claims…</p>}
           {!loading&&!claims.length && <div className="empty"><span>◇</span><h3>Your inbox is ready</h3><p>Create a sample intake to walk through the claim journey, or run the documented end-to-end demo.</p></div>}
@@ -181,7 +195,7 @@ function App() {
           </div>
           <div className="section-title">Activity trail <span>{audit.length} recorded events</span></div><ol className="timeline">{audit.slice().reverse().map(event=><li key={event.id}><span className="timeline-dot"/><div><strong>{pretty(event.event_type)}</strong><small>{auditDescription(event)}</small><small>{new Date(event.created_at).toLocaleString('en-KE')} · {event.actor}</small></div></li>)}</ol>
         </section> : <section className="panel detail empty"><span>↗</span><h2>No claim selected</h2><p>Select a claim to see its evidence, decisions and activity trail.</p></section>}
-      </div></>}
+      </div></>}</>}
       <footer><span>Turaco Insurance · Independent reference implementation</span><span>Human approval required.</span></footer>
     </main>
   </div>;

@@ -2,11 +2,12 @@ import hmac
 import os
 from fastapi import Depends, FastAPI, Header, HTTPException
 from app.providers.mock import MockProvider
-from app.schema import ClaimExtraction, ExtractionRequest, enforce_provenance
+from app.schema import ClaimExtraction, ExtractionRequest, ModelTrace, enforce_provenance
 from app.providers.registry import provider as selected_provider
 from app.workflow import Turn, turn
 from app.document import DocumentCheck, verify
-from app.observability import trace_extraction
+from app.observability import trace_extraction, trace_task, extraction_metadata
+from app.billing import Profile, propose
 
 app = FastAPI(title="Turaco synthetic extraction", version="0.2.0")
 
@@ -32,13 +33,16 @@ def capabilities():
 
 
 @app.post("/v1/extract-claim", response_model=ClaimExtraction, dependencies=[Depends(authorize)])
-async def extract(request: ExtractionRequest):
+async def extract(request: ExtractionRequest, x_correlation_id: str = Header(default="")):
     provider = selected_provider()
     try:
         result = await provider.extract(request)
         if result.language != request.language:
             raise ValueError("Provider language mismatch")
         result = enforce_provenance(result, request.transcript, request.incident_catalog)
+        from uuid import UUID
+        result.model_trace = ModelTrace.model_validate(extraction_metadata(str(UUID(x_correlation_id)) if x_correlation_id else ""))
+        trace_task("claim-extraction", result.model_trace.model_dump(exclude_none=True))
         missing = sum(getattr(result, field).value is None for field in ("hospital_name", "incident_type_code", "admission_date", "discharge_date"))
         trace_extraction(request.language, os.environ.get("AI_PROVIDER", "mock"), missing)
         return result
@@ -65,3 +69,16 @@ async def document(request: DocumentCheck):
 @app.post("/v1/transcribe", dependencies=[Depends(authorize)])
 def transcribe():
     raise HTTPException(422, "No production-validated speech capability. Use the local fixture-transcript simulator or human assistance.")
+
+
+@app.post("/v1/billing/propose-mapping", dependencies=[Depends(authorize)])
+async def mapping(request: Profile, x_correlation_id: str = Header(default="")):
+    try:
+        from uuid import UUID
+        result = await propose(request)
+        if x_correlation_id:
+            result["correlation_id"] = str(UUID(x_correlation_id))
+        trace_task("partner-mapping", result)
+        return result
+    except Exception:
+        raise HTTPException(502, "Mapping unavailable; retain the batch for human review or safe resumption") from None

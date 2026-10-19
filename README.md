@@ -1,6 +1,10 @@
 # Turaco Insurance reference · 0.2.0
 
+Portfolio: [case study](https://turaco-presentation.kimani-mutua.workers.dev/portfolio/) · [live demo](https://turaco-presentation.kimani-mutua.workers.dev/workspace/) · [presentation](https://turaco-presentation.kimani-mutua.workers.dev/deck/) · [source snapshot](https://github.com/kimtour/turaco-insurance/releases/tag/portfolio-2026-10-19).
+
 A synthetic implementation of all six phases in [Handoff v5](docs/source/turaco_insurance_handoff_v5.md): intake, extraction, conversation, review, provider synchronization, simulated payouts and operational recovery. Independent reference implementation; not an official Turaco system.
+
+The current development rebuild adds **partner billing**, **effective-dated claim completeness**, bounded **Deep Agents** mapping, an opt-in **Bedrock** adapter and future-channel simulations. See the [operations guide](docs/ai-operations.md) and [audit/delivery record](docs/decisions/REBUILD-2026-10-19.md). The historical 0.2.0 release artifacts retain their original commit provenance.
 
 **No live payments or real patient data.** Local simulators stand in for external services that require access or validated contracts. [Implementation and verification status](docs/decisions/SDLC-status.md) distinguishes implemented behavior from external release gates.
 
@@ -18,6 +22,7 @@ Requires Java 25, Python 3.12–3.14, uv, Node 24+ with npm, and PostgreSQL 17 c
 python3 scripts/dev.py start
 API_URL=http://127.0.0.1:18080 python3 scripts/demo.py
 API_URL=http://127.0.0.1:18080 python3 tests/e2e/full_platform.py
+API_URL=http://127.0.0.1:18080 python3 scripts/rebuild-check.py
 ```
 
 Open [the review workspace](http://localhost:5173). Local fixture login: `approver` / `local-demo-only`. Roles: officer handles intake; reviewer records verification/recommendations; approver can complete the synthetic journey. These accounts and the password flow are explicitly local fixtures. Tokens remain in browser memory.
