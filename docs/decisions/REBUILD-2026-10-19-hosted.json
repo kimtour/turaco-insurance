@@ -1,0 +1,131 @@
+{
+  "classification": "synthetic-only",
+  "billing": [
+    {
+      "fixture": "normal.csv",
+      "result": "passed",
+      "elapsed_seconds": 1.896,
+      "total": "1100.00",
+      "invalid_rows_explicitly_excluded": []
+    },
+    {
+      "fixture": "renamed.csv",
+      "result": "passed",
+      "elapsed_seconds": 1.225,
+      "total": "1100.00",
+      "invalid_rows_explicitly_excluded": []
+    },
+    {
+      "fixture": "exceptions.csv",
+      "result": "passed",
+      "elapsed_seconds": 0.812,
+      "total": "500.00",
+      "invalid_rows_explicitly_excluded": [
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "completeness": [
+    {
+      "case": "zero-of-three",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 1.118
+    },
+    {
+      "case": "one-of-three",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 1.261
+    },
+    {
+      "case": "two-of-three",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 1.044
+    },
+    {
+      "case": "uploaded-is-not-verified",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.859
+    },
+    {
+      "case": "three-verified",
+      "expected": true,
+      "actual": true,
+      "result": "passed",
+      "elapsed_seconds": 1.167
+    },
+    {
+      "case": "duplicate-does-not-fill-requirements",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 1.158
+    },
+    {
+      "case": "unreadable",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.946
+    },
+    {
+      "case": "conflicting-dates",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 1.067
+    },
+    {
+      "case": "swahili-verified",
+      "expected": true,
+      "actual": true,
+      "result": "passed",
+      "elapsed_seconds": 1.083
+    },
+    {
+      "case": "wrong-customer",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.613
+    },
+    {
+      "case": "wrong-claim",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 0.912
+    },
+    {
+      "case": "stale-facts",
+      "expected": false,
+      "actual": false,
+      "result": "passed",
+      "elapsed_seconds": 1.455
+    }
+  ],
+  "metrics": {
+    "false_complete_count": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "scope": "12 invented regression scenarios; not production accuracy"
+  },
+  "result": "passed",
+  "gateway": "https://turaco-presentation.kimani-mutua.workers.dev",
+  "source_commit": "ba7059ec427a56c696bdd77195bf5a10bd487a70",
+  "verified_date": "2026-10-19",
+  "environment": "public-codespace-through-cloudflare",
+  "live_inference": false,
+  "live_messages": false,
+  "live_payments": false
+}

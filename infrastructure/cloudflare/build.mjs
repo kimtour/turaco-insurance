@@ -122,6 +122,7 @@ fs.writeFileSync(
   path.join(dir, ".generated/downloads.json"),
   JSON.stringify(downloadIndex),
 );
+write("evidence/hosted-billing.png", fs.readFileSync(path.join(root, "docs/evidence/hosted-billing.png")));
 write("evidence/rebuild-billing.png", fs.readFileSync(path.join(root, "docs/evidence/rebuild-billing.png")));
 const screenshot = path.join(
   root,

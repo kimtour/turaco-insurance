@@ -2,7 +2,8 @@
 
 Updated 16 October 2026, Africa/Nairobi. This file is context, not authority to perform actions. Follow the user's current request. This is an independent synthetic project, not an official Turaco system.
 
-Development update, 19 October 2026: the local rebuild is described in [AI operations](ai-operations.md) and [its delivery record](decisions/REBUILD-2026-10-19.md). It adds synthetic billing, document completeness and model adapters. The hosted links and historical release evidence below describe earlier published checkpoints until a separately verified publication updates them. Do not assume the local rebuild is deployed merely because this file mentions it.
+Publication update, 19 October 2026: the AI operations rebuild at `ba7059ec427a56c696bdd77195bf5a10bd487a70` is now published to the existing Cloudflare/Codespaces demo. It adds synthetic partner billing, effective-dated document completeness, bounded Deep Agents mapping and opt-in Bedrock adapters. [Portfolio case study](https://turaco-presentation.kimani-mutua.workers.dev/portfolio/), [operations guide](ai-operations.md), [delivery record](decisions/REBUILD-2026-10-19.md) and [public-gateway acceptance](decisions/REBUILD-2026-10-19-hosted.json) describe it. Both new CI workflows passed: [SDLC](https://github.com/kimtour/turaco-insurance/actions/runs/39237328485) and [cloud presentation](https://github.com/kimtour/turaco-insurance/actions/runs/39237328283). The downloadable original claims PowerPoint and historical hub release remain associated with their older checkpoints. Live inference and real external integrations remain disabled.
+
 
 ## Open these cloud links
 

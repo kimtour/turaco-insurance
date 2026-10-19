@@ -1,6 +1,7 @@
 # SDLC status
 
-19 October development rebuild: [AI operations](../ai-operations.md) and [current verification](REBUILD-2026-10-19.md) describe the new local billing, completeness and model-adapter work. The historical remote release and presentation evidence below remains tied to its named commits; it does not establish deployment of the rebuild.
+19 October published rebuild: [AI operations](../ai-operations.md), [verification](REBUILD-2026-10-19.md) and [hosted acceptance](REBUILD-2026-10-19-hosted.json) describe billing, completeness and bounded model adapters now deployed at source `ba7059ec427a56c696bdd77195bf5a10bd487a70`. All five [SDLC jobs](https://github.com/kimtour/turaco-insurance/actions/runs/39237328485) and both [cloud-presentation jobs](https://github.com/kimtour/turaco-insurance/actions/runs/39237328283) passed. The earlier evidence below retains its original provenance.
+
 
 Independent synthetic reference implementation. Not an official Turaco system.
 
