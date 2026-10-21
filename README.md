@@ -2,11 +2,31 @@
 
 Portfolio: [case study](https://turaco-presentation.kimani-mutua.workers.dev/portfolio/) · [live demo](https://turaco-presentation.kimani-mutua.workers.dev/workspace/) · [presentation](https://turaco-presentation.kimani-mutua.workers.dev/deck/) · [source snapshot](https://github.com/kimtour/turaco-insurance/releases/tag/portfolio-2026-10-19).
 
-A synthetic implementation of all six phases in [Handoff v5](docs/source/turaco_insurance_handoff_v5.md): intake, extraction, conversation, review, provider synchronization, simulated payouts and operational recovery. Independent reference implementation; not an official Turaco system.
+## Project overview
 
-The current development rebuild adds **partner billing**, **effective-dated claim completeness**, bounded **Deep Agents** mapping, an opt-in **Bedrock** adapter and future-channel simulations. See the [operations guide](docs/ai-operations.md) and [audit/delivery record](docs/decisions/REBUILD-2026-10-19.md). The historical 0.2.0 release artifacts retain their original commit provenance.
+An independent synthetic insurance-operations reference application covering claim intake, document completeness, human review, simulated provider synchronization/payouts and partner billing. The original six-phase scope is recorded in [Handoff v5](docs/source/turaco_insurance_handoff_v5.md). It is not an official Turaco system and uses invented policy terms and synthetic records.
 
-**No live payments or real patient data.** Local simulators stand in for external services that require access or validated contracts. [Implementation and verification status](docs/decisions/SDLC-status.md) distinguishes implemented behavior from external release gates.
+### Purpose and users
+
+The operational need is to turn incomplete intake and partner files into reviewable, auditable decisions without giving an AI model authority to approve claims or move money. Intended users are intake officers, reviewers, approvers and operators exercising the reference workflows. The system is a prototype, not evidence of a deployed insurer integration.
+
+### Inputs and outputs
+
+Inputs include synthetic customer/policy/claim facts, text evidence, partner CSV batches, confirmations, review decisions and simulator callbacks. Outputs include validated claim records, completeness results, discrepancies, recommendations, audit events, simulated invoice preparations and payout histories. PostgreSQL owns business state; scoped conversation checkpoints support the AI service. Raw partner uploads/evidence are protected as described in the security documentation.
+
+### Logic and workflow
+
+Intake → extract unconfirmed candidate facts → confirm/verify evidence → resolve discrepancies → submit for review → record a human decision → calculate benefits deterministically → authorize a simulated payout and reconcile its result. Separately, partner CSVs undergo mapping review, validation, explicit invalid-row exclusion and approval before simulated invoice preparation. Java owns financial calculations, permissions and state transitions; models cannot self-confirm facts, approve claims or execute payment tools. Unknown payout outcomes block blind retries.
+
+### Integrations
+
+Spring Boot, PostgreSQL/Flyway, Keycloak, FastAPI and LangGraph support the local platform. Provider, queue and payout behavior use simulators. Optional OpenAI/Anthropic extraction, bounded Deep Agents/Bedrock mapping and redacted Langfuse observability require explicit configuration. React provides the operations workspace. Cloudflare hosts presentation material; the documented cloud demo uses a Codespace Docker stack.
+
+### Running, maintenance and boundaries
+
+Start manually through the local helper or Compose; background workers process local outbox/queue work. GitHub Actions defines verification and release packaging. Maintain dependencies, encryption keys, migrations, review rules, backups and scope/role configuration. Codespaces and Cloudflare have account quotas; optional real-model calls and hosting can incur charges. No fixed production operating cost is established.
+
+The rebuild adds partner billing and effective-dated completeness to the historical 0.2.0 reference; release/status documents distinguish checkpoints and external gates. No real payments, official insurer contracts, live messaging, medical validation or production identity enrollment are implemented. Only synthetic data is authorized for the optional model adapters. Real integrations and production operation require separate contracts and validation.
 
 ## Cloud presentation
 
@@ -115,10 +135,9 @@ Langfuse is disabled by default. Its opt-in adapter exports only language, provi
 
 `APP_MODE=integration` fails closed: no verified official Turaco adapter or disbursement contract exists. Speech/PDF/image OCR and real malware scanning remain human-assisted/external validation gates; the local document parser does not pretend to perform those tasks. Real identity enrollment, policy terms, vendor agreements, residency/retention and country approvals are required before real data. No cloud resources or real transfers are created by the local stack.
 
-### Interview materials
+### Presentation materials
 
 - [Browser presentation](https://turaco-presentation.kimani-mutua.workers.dev/deck/)
-- [PowerPoint with presenter notes](https://turaco-presentation.kimani-mutua.workers.dev/deck/turaco-interview.pptx)
 - [Portable AI handoff](https://turaco-presentation.kimani-mutua.workers.dev/handoff/AI-HANDOFF.md)
 
 The deck, handoff and reference documents are served by Cloudflare. Resume the
